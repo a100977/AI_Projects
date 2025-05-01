@@ -1,0 +1,3 @@
+User-agent: *
+Disallow: /autogen-2025-04-22-060951/
+Sitemap: https://cricanalysis.b12sites.com/sitemap.xml
