@@ -1,0 +1,380 @@
+{
+  "name": "NewsLetter!",
+  "nodes": [
+    {
+      "parameters": {
+        "url": [
+          "https://bensbites.beehiiv.com/feed",
+          "https://www.therundown.ai/feed.xml",
+          "https://openai.com/blog/rss.xml",
+          "https://huggingface.co/blog/rss.xml",
+          "https://jack-clark.net/feed.xml",
+          "https://www.deepmind.com/blog/rss.xml"
+        ],
+        "options": {}
+      },
+      "id": "bc2a2a7c-af99-4fbd-a476-70aa370566e4",
+      "name": "Fetch AI News RSS",
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1,
+      "position": [
+        -40,
+        100
+      ],
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "language": "javascript",
+        "jsCode": "// Loop over input items and add a new field called 'myNewField' to the JSON of each one\nfor (const item of $input.all()) {\n  item.json.myNewField = 1;\n}\n\nreturn $input.all();"
+      },
+      "id": "0f3de319-0b43-4af9-8a94-9571410064d7",
+      "name": "Summarize Headlines",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 1,
+      "position": [
+        160,
+        100
+      ],
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "fromEmail": "a100977@gmail.com",
+        "toEmail": "a1009us@gmail.com",
+        "subject": "Your Daily AI & LLM News Digest",
+        "text": "={{$json[\"summary\"]}}",
+        "options": {}
+      },
+      "id": "dbc7c88a-704e-456d-92ce-098911d6d99d",
+      "name": "Send Daily Email",
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 1,
+      "position": [
+        360,
+        100
+      ],
+      "credentials": {
+        "smtp": {
+          "id": "Z6DoxCvVhrGR3uEe",
+          "name": "SMTP account"
+        }
+      },
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "= {{ $json.Assignee }}\nYou are the expert newsletter generator. This is a list of all the email addresses to which the newsletter will be sent!",
+        "options": {
+          "systemMessage": "=You are a the best newsletter generator [topic: AI, AI Agents, LLM news]. Your job is to summarize the top headlines from the sources below and put the curated content in the HTML format described at the end of this prompt. Use LLMWebSearch tool for doing live websearch. Please link all the sources for further reading.\n\n\n-- Email Subject and Body\nUse the Gmail Tool to send emails \nTo: Send separate emails to all entries in {{ $json.Assignee }}\nSubject: Your daily dose of AI News\n\n\n-- Sources \nHere are your sources to get the latest news from the world of AI: \n\nTo stay updated on the latest in **AI, LLMs, and AI Agents**, here’s a curated list of **top websites, newsletters, and resources** across research, product, and startup ecosystems:\n\n---\n\n### **Top Websites & Blogs**\n\n1. **[Hugging Face Blog](https://huggingface.co/blog)**\n\n   * Hands-on with LLMs, open-source tools, model releases, and agentic workflows.\n\n2. **[OpenAI Blog](https://openai.com/blog)**\n\n   * Official releases, model updates (like GPT-4o), and philosophical takes on AI safety & alignment.\n\n3. **[Anthropic Blog](https://www.anthropic.com/index/updates)**\n\n   * Claude-related LLM innovations, safety-centric designs, and agent-based research.\n\n4. **[AI Snake Oil](https://aisnakeoil.substack.com) – Arvind Narayanan & Sayash Kapoor**\n\n   * Balanced, critical thinking on AI hype, LLM limitations, and societal implications.\n\n5. **[Google DeepMind Blog](https://www.deepmind.com/blog)**\n\n   * Cutting-edge research and agent architecture developments (e.g., Gemini, AlphaCode).\n\n---\n\n### **Top Newsletters**\n\n1. **[Ben’s Bites](https://www.bensbites.co)**\n\n   * Daily bite-sized updates on LLMs, tools, agents, and startup news.\n\n2. **[The Rundown AI](https://www.therundown.ai/)**\n\n   * Visual and beginner-friendly daily recaps; includes product launches and tool tips.\n\n3. **[Latent Space](https://www.latent.space/) – by SWYX & Alessio**\n\n   * Deep dives into LLM infrastructure, agents, LangChain, Retrieval-Augmented Generation (RAG), and startups.\n\n4. **[Import AI](https://jack-clark.net/) – by Jack Clark**\n\n   * High-level commentary on long-term trends in AI, governance, and research.\n\n5. **[Eye on AI](https://www.eye-on.ai/)**\n\n   * Interviews with AI leaders, founders, and researchers.\n\n6. **[Chain of Thought (CoT)](https://chainofthought.ai)**\n\n   * Focuses specifically on the agent ecosystem, open-source agents, and orchestration tools.\n\n---\n\n### **Bonus Tools & Feeds**\n\n* **Twitter/X accounts to follow**:\n  `@swyx`, `@karpathy`, `@andrejkarpathy`, `@emollick`, `@yoheinakajima` (agent GPT guy), `@drjimfan` (robotics + AI), `@amasad` (Replit founder on AI agents).\n\n* **[Papers with Code – Agents Category](https://paperswithcode.com/task/autonomous-agents)**\n\n  * For code-backed papers on agentic frameworks and autonomous systems.\n\n* **[AgentHub.dev](https://agenthub.dev)**\n\n  * A fast-growing aggregator of AI agent tools, evaluations, and open agents.\n\n---\n\n\n\n-- Send the report in below format (this is a sample only for reference. Format the report to be in HTML that can be sent to users email)\n\n<!DOCTYPE html>\n<html>\n<head>\n    <meta charset=\"UTF-8\">\n    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n    <title>The AI Pulse - June 20, 2024</title>\n    <!-- Basic styles for email compatibility - inline styles are preferred -->\n</head>\n<body style=\"margin: 0; padding: 0; background-color: #f4f4f4; font-family: Arial, sans-serif;\">\n\n    <table border=\"0\" cellpadding=\"0\" cellspacing=\"0\" width=\"100%\">\n        <tr>\n            <td style=\"padding: 20px 0;\" align=\"center\">\n\n                <table border=\"0\" cellpadding=\"0\" cellspacing=\"0\" width=\"600\" style=\"border-collapse: collapse; background-color: #ffffff; box-shadow: 0 2px 4px rgba(0,0,0,0.1);\">\n                    <tr>\n                        <td align=\"center\" style=\"padding: 40px 0 30px 0;\">\n                            <h1 style=\"margin: 0; font-size: 32px; color: #333333;\">The AI Pulse</h1>\n                            <p style=\"margin: 10px 0 0 0; font-size: 16px; color: #666666;\">June 20, 2024</p>\n                        </td>\n                    </tr>\n                    <tr>\n                        <td style=\"padding: 20px 30px 20px 30px;\">\n                            <h2 style=\"margin: 0 0 15px 0; font-size: 24px; color: #007bff;\">Top Story: Major Strides in AI Agent Reliability and Practical Deployment</h2>\n                            <p style=\"margin: 0 0 20px 0; font-size: 16px; line-height: 24px; color: #333333;\">\n                                Welcome to The AI Pulse, your regular digest of the most important developments in Artificial Intelligence, Large Language Models, and the burgeoning world of AI Agents, curated from the leading voices and resources in the field [1]. This week, the spotlight is firmly on the practical application and reliability of AI agents [1]. Recent reports and research highlight significant progress in making autonomous agents more robust, capable of handling complex, multi-step tasks with fewer failures, pushing them closer to real-world utility [1]. Here's a look at the key updates [1]:\n                            </p>\n\n                            <h3 style=\"margin: 0 0 15px 0; font-size: 20px; color: #007bff;\">AI Agents & Automation:</h3>\n                            <ul style=\"margin: 0 0 20px 20px; padding: 0; list-style: disc;\">\n                                <li style=\"margin-bottom: 10px; font-size: 16px; line-height: 24px; color: #333333;\">\n                                    <strong>Improved Agent Architectures:</strong> New research from labs like Google DeepMind and Anthropic is exploring novel architectures aimed at improving agent reasoning, planning, and memory retention over long execution paths [1]. This includes techniques inspired by \"Chain of Thought\" prompting but scaled for more complex autonomous workflows [1]. (Sources: DeepMind Blog, Anthropic Blog, Papers with Code, Chain of Thought Newsletter) [1]\n                                </li>\n                                <li style=\"margin-bottom: 10px; font-size: 16px; line-height: 24px; color: #333333;\">\n                                    <strong>Open-Source Agents Gaining Traction:</strong> Several open-source agent frameworks and tools are seeing rapid development and adoption [1]. Community-driven projects are focusing on creating modular components for tasks like tool use, web browsing, and code execution, making it easier for developers to build custom agents [1]. Resources like AgentHub.dev are tracking the rise of these tools [1]. (Sources: Hugging Face Blog, Latent Space, AgentHub.dev) [1]\n                                </li>\n                                <li style=\"margin-bottom: 10px; font-size: 16px; line-height: 24px; color: #333333;\">\n                                    <strong>Challenges in Reliability:</strong> While progress is being made, discussions on platforms like AI Snake Oil and in newsletters continue to emphasize the current limitations of agents, particularly around consistency, handling ambiguity, and potential for \"agent failure\" when encountering unexpected scenarios [1]. The focus remains on building more robust evaluation metrics and safety guardrails [1]. (Sources: AI Snake Oil, Import AI) [1]\n                                </li>\n                            </ul>\n\n                            <h3 style=\"margin: 0 0 15px 0; font-size: 20px; color: #007bff;\">Large Language Models (LLMs):</h3>\n                            <ul style=\"margin: 0 0 20px 20px; padding: 0; list-style: disc;\">\n                                <li style=\"margin-bottom: 10px; font-size: 16px; line-height: 24px; color: #333333;\">\n                                    <strong>Model Efficiency & Optimization:</strong> The focus is shifting towards making models smaller, faster, and more efficient for deployment on various hardware [1]. Techniques like quantization, distillation, and new fine-tuning methods are being widely discussed and implemented in open-source models [1]. (Source: Hugging Face Blog, Latent Space) [1]\n                                </li>\n                                <li style=\"margin-bottom: 10px; font-size: 16px; line-height: 24px; color: #333333;\">\n                                    <strong>Multimodal Progress:</strong> Following recent major announcements, updates continue to emerge regarding improvements in multimodal models, enhancing their ability to understand and generate content across text, images, and potentially audio/video [1]. (Sources: OpenAI Blog, Google DeepMind Blog, Anthropic Blog) [1]\n                                </li>\n                                <li style=\"margin-bottom: 10px; font-size: 16px; line-height: 24px; color: #333333;\">\n                                    <strong>New Open Models Released:</strong> Several new open-source LLMs, varying in size and specialization, have been released, further democratizing access to advanced language capabilities [1]. (Source: Hugging Face Blog, Ben's Bites, The Rundown AI) [1]\n                                </li>\n                            </ul>\n\n                            <h3 style=\"margin: 0 0 15px 0; font-size: 20px; color: #007bff;\">Industry & Research Updates:</h3>\n                            <ul style=\"margin: 0 0 20px 20px; padding: 0; list-style: disc;\">\n                                <li style=\"margin-bottom: 10px; font-size: 16px; line-height: 24px; color: #333333;\">\n                                    <strong>Increased Investment in Agent Startups:</strong> The startup ecosystem is seeing significant investment and activity in companies building agentic applications for specific verticals like customer service, software development, and research assistance [1]. (Sources: Ben's Bites, The Rundown AI, Eye on AI Interviews) [1]\n                                </li>\n                                <li style=\"margin-bottom: 10px; font-size: 16px; line-height: 24px; color: #333333;\">\n                                    <strong>Debate on AGI and Safety:</strong> Discussions around the pace of AI progress, potential paths to AGI, and the critical importance of safety, alignment, and governance remain prominent among thought leaders and researchers [1]. (Sources: Import AI, OpenAI Blog, Anthropic Blog, AI Snake Oil) [1]\n                                </li>\n                                <li style=\"margin-bottom: 10px; font-size: 16px; line-height: 24px; color: #333333;\">\n                                    <strong>Practical Use Cases & Tools:</strong> Newsletters continue to highlight new tools and practical ways businesses and individuals are leveraging LLMs and early-stage agents for productivity gains [1]. (Sources: The Rundown AI, Ben's [1] Bites) [2]\n                                </li>\n                            </ul>\n\n                            <p style=\"margin: 20px 0 20px 0; font-size: 16px; line-height: 24px; color: #333333;\">\n                                This concludes our test newsletter [2]. We aim to bring you the most relevant and impactful news from the world of AI, LLMs, and Agents, cutting through the noise to provide you with actionable insights and keep you informed on the frontier of this rapidly evolving field [2].\n                            </p>\n\n                            <!-- Note about simulation -->\n                            <p style=\"margin: 30px 0 10px 0; font-size: 12px; color: #999999;\">\n                                *Note: This is a simulated newsletter based on the types of news typically found in the provided sources, reflecting general recent trends in the field up to my knowledge cut-off [2].\n                            </p>\n                            <p style=\"margin: 0 0 30px 0; font-size: 12px; color: #999999;\">\n                                *(This specific node execution does not actually send an email) [2]\n                            </p>\n\n                        </td>\n                    </tr>\n                </table>\n\n            </td>\n        </tr>\n    </table>\n\n</body>\n</html>"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.8,
+      "position": [
+        160,
+        -400
+      ],
+      "id": "dcaa360e-5f4b-49d2-8f55-4c9927a411b7",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-2.0-flash-thinking-exp-1219",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        60,
+        -160
+      ],
+      "id": "b9bb0c02-e96a-4a8e-bcb6-5ad872fcbfb6",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "mzB5hscXURj4TrtX",
+          "name": "Google Gemini(PaLM) Api account 5"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('To', ``, 'string') }}",
+        "subject": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Subject', ``, 'string') }}",
+        "message": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Message', ``, 'string') }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmailTool",
+      "typeVersion": 2.1,
+      "position": [
+        400,
+        -140
+      ],
+      "id": "eafe5fc4-d036-4c8b-b6ed-43f232c8c20f",
+      "name": "Gmail",
+      "webhookId": "9c9f8564-903d-42f3-8fcd-c70fb124f98c",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "HjsPiWeyfsl8mAYC",
+          "name": "Gmail account 3"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "triggerAtHour": 8
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -620,
+        -200
+      ],
+      "id": "ecf812df-7093-4ee4-887e-9d339f13e62d",
+      "name": "Schedule Trigger"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.openai.com/v1/chat/completions",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "openAiApi",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "{\n  \"model\": \"gpt-4o-search-preview\",\n  \"messages\": [\n    {\n      \"role\": \"user\",\n      \"content\": \"Search the web to get live information on latest news in AI, LLM, AI Agents and Agentic space\"\n    }\n  ]\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        600,
+        100
+      ],
+      "id": "94c95f74-52d6-4476-8cde-45420098298d",
+      "name": "LiveWebSearch",
+      "credentials": {
+        "openAiApi": {
+          "id": "KglUfpgOnHXjzcEP",
+          "name": "OpenAi account"
+        }
+      },
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.openai.com/v1/chat/completions",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "openAiApi",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "{\n  \"model\": \"gpt-4o-search-preview\",\n  \"messages\": [\n    {\n      \"role\": \"system\",\n      \"content\": \"Search the web to get live information on latest news in AI, LLM, AI Agents and Agentic space. Please include source URLs for all important references for further reading. Format the output as bullet points\"\n    }\n  ]\n}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolHttpRequest",
+      "typeVersion": 1.1,
+      "position": [
+        580,
+        -220
+      ],
+      "id": "d4c67151-6d5d-49fe-b7aa-ec3b387f5aeb",
+      "name": "LLMWebSearch",
+      "credentials": {
+        "openAiApi": {
+          "id": "KglUfpgOnHXjzcEP",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -640,
+        -460
+      ],
+      "id": "9be474f4-995c-4d66-af6f-5e7a38bde634",
+      "name": "When clicking ‘Test workflow’"
+    },
+    {
+      "parameters": {
+        "operation": "search",
+        "base": {
+          "__rl": true,
+          "value": "appGfecAMohbXWq0F",
+          "mode": "list",
+          "cachedResultName": "Prompts",
+          "cachedResultUrl": "https://airtable.com/appGfecAMohbXWq0F"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tblaUol7eDrAXwEJ3",
+          "mode": "list",
+          "cachedResultName": "NewsletterEmail",
+          "cachedResultUrl": "https://airtable.com/appGfecAMohbXWq0F/tblaUol7eDrAXwEJ3"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [
+        -280,
+        -400
+      ],
+      "id": "aaedd2c1-0d18-46b1-b94c-4b1c32461067",
+      "name": "Airtable",
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "3ClPi7CaCgErYGqB",
+          "name": "Airtable Personal Access Token account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "fieldsToAggregate": {
+          "fieldToAggregate": [
+            {
+              "fieldToAggregate": "Assignee"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.aggregate",
+      "typeVersion": 1,
+      "position": [
+        -60,
+        -400
+      ],
+      "id": "bce8f7c6-5ac7-4fbe-bd19-832ad8ab98e5",
+      "name": "Aggregate"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Fetch AI News RSS": {
+      "main": [
+        [
+          {
+            "node": "Summarize Headlines",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Summarize Headlines": {
+      "main": [
+        [
+          {
+            "node": "Send Daily Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        []
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gmail": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "Airtable",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "LLMWebSearch": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When clicking ‘Test workflow’": {
+      "main": [
+        [
+          {
+            "node": "Airtable",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Airtable": {
+      "main": [
+        [
+          {
+            "node": "Aggregate",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Aggregate": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "d7878fb8-7f3d-4b9f-9823-0fa0a58846db",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "a764b609a2bd947c547c60992334f51138964cb1d35987ffbf20d41f7a10741b"
+  },
+  "id": "Y9FeZGRa2dWvUThT",
+  "tags": []
+}

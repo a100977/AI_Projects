@@ -1,0 +1,59 @@
+{
+  "nodes": [
+    {
+      "id": "1",
+      "name": "Fetch AI News RSS",
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1,
+      "position": [200, 300],
+      "parameters": {
+        "url": [
+          "https://bensbites.beehiiv.com/feed",
+          "https://www.therundown.ai/feed.xml",
+          "https://openai.com/blog/rss.xml",
+          "https://huggingface.co/blog/rss.xml",
+          "https://jack-clark.net/feed.xml",
+          "https://www.deepmind.com/blog/rss.xml"
+        ],
+        "options": {
+          "splitIntoItems": true
+        }
+      }
+    },
+    {
+      "id": "2",
+      "name": "Summarize Headlines",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 1,
+      "position": [400, 300],
+      "parameters": {
+        "language": "javascript",
+        "code": "const summaries = items.map(item => {\n  return `- ${item.json.title} (${item.json.link})`;\n});\n\nreturn [{ json: { summary: summaries.join('\\n') } }];"
+      }
+    },
+    {
+      "id": "3",
+      "name": "Send Daily Email",
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 1,
+      "position": [600, 300],
+      "parameters": {
+        "fromEmail": "you@example.com",
+        "toEmail": "a1009us@gmail.com",
+        "subject": "Your Daily AI & LLM News Digest",
+        "text": "={{$json[\"summary\"]}}"
+      }
+    }
+  ],
+  "connections": {
+    "Fetch AI News RSS": {
+      "main": [["Summarize Headlines"]]
+    },
+    "Summarize Headlines": {
+      "main": [["Send Daily Email"]]
+    }
+  },
+  "name": "Daily AI News Summary",
+  "active": true
+}
+
