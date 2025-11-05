@@ -1,0 +1,6 @@
+Portfolio ID,User,Portfolio Name,Description,Stock Symbols,Created At,Updated At
+1,demo.user@gmail.com,My First Portfolio,Sample portfolio for demo user,AAPL,MSFT,GOOGL,2025-01-01,2025-01-20
+2,john.doe@gmail.com,Tech Growth,High-growth technology stocks,AAPL,MSFT,GOOGL,NVDA,META,TSLA,AMD,2025-01-05,2025-01-20
+3,john.doe@gmail.com,Dividend Stocks,Stable dividend-paying companies,JNJ,PG,KO,PEP,MCD,2025-01-06,2025-01-18
+4,jane.smith@gmail.com,Momentum Plays,High momentum breakout candidates,NVDA,AMD,PLTR,COIN,RBLX,SNOW,NET,DDOG,CRWD,ZS,2025-01-10,2025-01-19
+5,jane.smith@gmail.com,Blue Chips,Large cap stable companies,AAPL,MSFT,GOOGL,AMZN,BRK.B,JPM,V,MA,2025-01-11,2025-01-19
