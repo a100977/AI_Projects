@@ -26,16 +26,13 @@ export default defineConfig({
     emptyOutDir: true,
   },
   server: {
-    host: true,
-    allowedHosts: [
-      ".manuspre.computer",
-      ".manus.computer",
-      ".manus-asia.computer",
-      ".manuscomputer.ai",
-      ".manusvm.computer",
-      "localhost",
-      "127.0.0.1",
-    ],
+    host: "0.0.0.0",
+    port: 5173,
+    strictPort: false,
+    hmr: {
+      clientPort: 443,
+      protocol: 'wss',
+    },
     fs: {
       strict: true,
       deny: ["**/.*"],
