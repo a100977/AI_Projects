@@ -34,12 +34,17 @@ export function startScheduler() {
 }
 
 async function generateDailyReports() {
+  const startTime = Date.now();
+  
   try {
     const users = await getUsers();
     console.log(`[Daily Reports] Found ${users.length} users`);
 
     let totalPortfolios = 0;
+    let totalStocks = 0;
     let totalStocksAnalyzed = 0;
+    let totalErrors = 0;
+    const errors: string[] = [];
 
     for (const user of users) {
       try {
@@ -59,6 +64,7 @@ async function generateDailyReports() {
 
           const stocks = await getStocks();
           const portfolioStocks = stocks.filter((s: any) => stockIds.includes(s.id!));
+          totalStocks += portfolioStocks.length;
 
           for (const stock of portfolioStocks) {
             try {
@@ -94,6 +100,9 @@ async function generateDailyReports() {
               console.log(`[Daily Reports] ✓ ${stock.fields['Ticker Symbol']} analyzed (Score: ${analysis.totalScore})`);
               
             } catch (error) {
+              totalErrors++;
+              const errorMsg = `${stock.fields['Ticker Symbol']}: ${error instanceof Error ? error.message : 'Unknown error'}`;
+              errors.push(errorMsg);
               console.error(`[Daily Reports] ✗ Failed to analyze ${stock.fields['Ticker Symbol']}:`, error);
             }
           }
@@ -103,13 +112,28 @@ async function generateDailyReports() {
       }
     }
 
+    const duration = Date.now() - startTime;
+    const successRate = totalStocks > 0 ? ((totalStocksAnalyzed / totalStocks) * 100).toFixed(1) : '0';
+    const status = totalErrors === 0 ? 'SUCCESS' : totalErrors < totalStocks ? 'PARTIAL' : 'FAILED';
+
     console.log('═══════════════════════════════════════');
     console.log('[Daily Reports] Report generation completed!');
+    console.log(`[Daily Reports] Status: ${status}`);
+    console.log(`[Daily Reports] Duration: ${(duration / 1000).toFixed(2)}s`);
     console.log(`[Daily Reports] Portfolios processed: ${totalPortfolios}`);
-    console.log(`[Daily Reports] Stocks analyzed: ${totalStocksAnalyzed}`);
+    console.log(`[Daily Reports] Stocks analyzed: ${totalStocksAnalyzed}/${totalStocks} (${successRate}%)`);
+    if (totalErrors > 0) {
+      console.log(`[Daily Reports] Errors: ${totalErrors}`);
+      console.log(`[Daily Reports] Failed stocks: ${errors.slice(0, 5).join(', ')}${errors.length > 5 ? '...' : ''}`);
+    }
     console.log('═══════════════════════════════════════');
 
   } catch (error) {
-    console.error('[Daily Reports] Fatal error during report generation:', error);
+    const duration = Date.now() - startTime;
+    console.error('═══════════════════════════════════════');
+    console.error('[Daily Reports] Fatal error during report generation');
+    console.error(`[Daily Reports] Duration: ${(duration / 1000).toFixed(2)}s`);
+    console.error('[Daily Reports] Error:', error);
+    console.error('═══════════════════════════════════════');
   }
 }

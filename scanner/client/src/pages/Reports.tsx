@@ -63,6 +63,11 @@ interface DailyReport {
     avgScore: number;
     topScore: number;
   }[];
+  executionTime?: string;
+  executionStatus?: 'success' | 'partial' | 'failed';
+  executionDuration?: number;
+  errorCount?: number;
+  lastAnalysisTime?: string;
 }
 
 export default function Reports() {
@@ -296,6 +301,65 @@ export default function Reports() {
                   </div>
                 </CardHeader>
                 <CardContent className="space-y-6">
+                  {/* Execution Statistics */}
+                  {report.executionTime && (
+                    <div className="bg-slate-800/30 border border-blue-900/30 rounded-lg p-4">
+                      <div className="flex items-start justify-between">
+                        <div className="flex-1">
+                          <h4 className="text-sm font-semibold text-slate-300 mb-3 flex items-center gap-2">
+                            <BarChart3 className="w-4 h-4 text-blue-400" />
+                            Execution Statistics
+                          </h4>
+                          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                            <div>
+                              <div className="text-xs text-slate-500 mb-1">Last Run</div>
+                              <div className="text-sm text-white font-medium">
+                                {new Date(report.executionTime).toLocaleString('en-US', {
+                                  month: 'short',
+                                  day: 'numeric',
+                                  hour: 'numeric',
+                                  minute: '2-digit',
+                                  hour12: true
+                                })}
+                              </div>
+                            </div>
+                            <div>
+                              <div className="text-xs text-slate-500 mb-1">Status</div>
+                              <Badge className={
+                                report.executionStatus === 'success' 
+                                  ? 'bg-green-600 hover:bg-green-700' 
+                                  : report.executionStatus === 'partial'
+                                    ? 'bg-yellow-600 hover:bg-yellow-700'
+                                    : 'bg-red-600 hover:bg-red-700'
+                              }>
+                                {report.executionStatus === 'success' && '✓ Success'}
+                                {report.executionStatus === 'partial' && '⚠ Partial'}
+                                {report.executionStatus === 'failed' && '✗ Failed'}
+                              </Badge>
+                            </div>
+                            <div>
+                              <div className="text-xs text-slate-500 mb-1">Success Rate</div>
+                              <div className="text-sm text-white font-medium">
+                                {report.analyzedStocks}/{report.totalStocks} stocks
+                                <span className="text-xs text-slate-400 ml-1">
+                                  ({report.totalStocks > 0 ? Math.round((report.analyzedStocks / report.totalStocks) * 100) : 0}%)
+                                </span>
+                              </div>
+                            </div>
+                            {report.errorCount !== undefined && report.errorCount > 0 && (
+                              <div>
+                                <div className="text-xs text-slate-500 mb-1">Errors</div>
+                                <div className="text-sm text-red-400 font-medium">
+                                  {report.errorCount} failed
+                                </div>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
                   {/* Executive Summary */}
                   <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                     <Card className="bg-slate-800/50 border-blue-800/30">

@@ -457,10 +457,24 @@ export const appRouter = router({
           const portfolioStocks = allStocks.filter(s => stockIds.includes(s.id!));
           
           // Get analyses for this portfolio within the date range
-          const portfolioAnalyses = filteredAnalyses.filter(a => 
+          const portfolioAnalysesRaw = filteredAnalyses.filter(a => 
             a.fields.Stock && 
             stockIds.includes(a.fields.Stock[0])
           );
+
+          // Deduplicate analyses by stock - keep only the latest analysis per stock
+          const latestAnalysesByStock = new Map<string, typeof portfolioAnalysesRaw[0]>();
+          for (const analysis of portfolioAnalysesRaw) {
+            const stockId = analysis.fields.Stock![0];
+            const existing = latestAnalysesByStock.get(stockId);
+            const analysisTime = new Date(analysis.fields['Created At'] || analysis.fields['Analysis Date']).getTime();
+            const existingTime = existing ? new Date(existing.fields['Created At'] || existing.fields['Analysis Date']).getTime() : 0;
+            
+            if (!existing || analysisTime > existingTime) {
+              latestAnalysesByStock.set(stockId, analysis);
+            }
+          }
+          const portfolioAnalyses = Array.from(latestAnalysesByStock.values());
 
           const recommendations = portfolioAnalyses
             .filter(a => a.fields['Total Score'] >= 70)
@@ -512,6 +526,20 @@ export const appRouter = router({
             topScore: Math.max(...data.scores),
           }));
 
+          // Calculate execution metadata from analyses
+          const latestAnalysis = portfolioAnalyses.length > 0 
+            ? portfolioAnalyses.sort((a, b) => 
+                new Date(b.fields['Created At'] || b.fields['Analysis Date']).getTime() - 
+                new Date(a.fields['Created At'] || a.fields['Analysis Date']).getTime()
+              )[0]
+            : null;
+
+          const executionStatus = portfolioAnalyses.length === stockIds.length 
+            ? 'success' 
+            : portfolioAnalyses.length > 0 
+              ? 'partial' 
+              : 'failed';
+
           reports.push({
             id: portfolio.id!,
             date: endDateStr,
@@ -523,6 +551,10 @@ export const appRouter = router({
             buyCount: recommendations.filter(r => r.score >= 70 && r.score < 90).length,
             recommendations,
             sectorAnalysis,
+            executionTime: latestAnalysis?.fields['Created At'] || latestAnalysis?.fields['Analysis Date'],
+            executionStatus: executionStatus as 'success' | 'partial' | 'failed',
+            errorCount: stockIds.length - portfolioAnalyses.length,
+            lastAnalysisTime: latestAnalysis?.fields['Created At'] || latestAnalysis?.fields['Analysis Date'],
           });
         }
 
@@ -531,10 +563,15 @@ export const appRouter = router({
 
     generateReport: protectedProcedure
       .mutation(async ({ ctx }) => {
+        const startTime = Date.now();
         const user = await airtable.findUserByEmail(ctx.user.email!);
         if (!user) throw new Error('User not found');
 
         const portfolios = await airtable.getUserPortfolios(user.id!);
+        let totalStocks = 0;
+        let successCount = 0;
+        let errorCount = 0;
+        const errors: string[] = [];
         
         for (const portfolio of portfolios) {
           const stockIds = portfolio.fields.Stock || [];
@@ -542,6 +579,7 @@ export const appRouter = router({
 
           const stocks = await airtable.getStocks();
           const portfolioStocks = stocks.filter(s => stockIds.includes(s.id!));
+          totalStocks += portfolioStocks.length;
 
           for (const stock of portfolioStocks) {
             try {
@@ -570,13 +608,29 @@ export const appRouter = router({
                 'Volume Ratio': analysis.indicators.volumeRatio,
                 '52 Week High': analysis.indicators.high52w,
               });
+              successCount++;
             } catch (error) {
+              errorCount++;
+              const errorMsg = `${stock.fields['Ticker Symbol']}: ${error instanceof Error ? error.message : 'Unknown error'}`;
+              errors.push(errorMsg);
               console.error(`Failed to analyze ${stock.fields['Ticker Symbol']}:`, error);
             }
           }
         }
 
-        return { success: true };
+        const duration = Date.now() - startTime;
+        const status = errorCount === 0 ? 'success' : errorCount < totalStocks ? 'partial' : 'failed';
+
+        return { 
+          success: true, 
+          executionTime: new Date().toISOString(),
+          executionDuration: duration,
+          totalStocks,
+          successCount,
+          errorCount,
+          executionStatus: status,
+          errors: errors.slice(0, 5),
+        };
       }),
   }),
 });
