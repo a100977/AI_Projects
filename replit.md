@@ -5,6 +5,7 @@ This repository contains multiple AI-focused projects and marketing materials. T
 The Bullish Breakout Screener is a full-stack web application that:
 - Analyzes stocks using 5 technical indicators (SMA, MACD, RSI, Volume, 52-week highs)
 - Provides portfolio management with subscription tiers (Free, Pro, Premium)
+- Generates automated daily reports at 6:00 AM PST with execution statistics
 - Uses AirTable as the backend database for application data
 - Uses PostgreSQL for user authentication and session management
 - Integrates with Yahoo Finance for real-time market data
@@ -29,6 +30,11 @@ Preferred communication style: Simple, everyday language.
   - **Left Panel**: Live market indexes (S&P 500, NASDAQ, Dow Jones) with price changes, market news headlines, and links to financial resources
   - **Center Panel**: Interactive stock table with sortable columns (Symbol, Name, Price, Score, Rating), row selection for detailed view
   - **Right Panel**: Selected stock analysis with technical indicator progress bars, alerts, and "View Live Charts" button; shows "Run Screener" prompt when no analysis exists
+- **Reports View**: Daily consolidated reports with execution statistics
+  - **Execution Statistics Section**: Shows Last Run timestamp, Status badge (Success/Partial/Failed), Success Rate percentage, and Error count
+  - **Executive Summary**: Total Stocks, Analyzed count, STRONG BUY count, BUY count
+  - **Top Opportunities Table**: Sortable table showing stocks with scores ≥ 70, including Symbol, Company, Score, Rating, and Buy Rationale
+  - **Sector Analysis**: Distribution of strong stocks across market sectors
 
 **Key Design Patterns**:
 - Component-based architecture with shadcn/ui primitives
@@ -59,6 +65,14 @@ Preferred communication style: Simple, everyday language.
 1. **Market Data Service** (`marketData.ts`): Yahoo Finance API integration for real-time stock data
 2. **Screener Algorithm** (`screener.ts`): Technical analysis engine with scoring system
 3. **AirTable Integration** (`airtable.ts`): Database operations for all entities
+4. **Scheduler Service** (`scheduler.ts`): node-cron for automated daily report generation at 6:00 AM PST with execution tracking
+
+**Report Execution Metadata**:
+- **Execution Time**: Timestamp of when screener last ran (from AirTable 'Created At' field)
+- **Execution Status**: Success (all stocks analyzed), Partial (some stocks failed), Failed (no stocks analyzed)
+- **Success Rate**: Percentage of stocks successfully analyzed vs total stocks in portfolio
+- **Error Count**: Number of stocks that failed analysis
+- **Deduplication**: Reports deduplicate multiple analyses per stock (keeps latest) to ensure accurate metrics
 
 **Technical Indicator Scoring System**:
 - SMA Breakout Analysis: 25 points maximum
