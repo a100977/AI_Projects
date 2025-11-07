@@ -325,33 +325,37 @@ export default function Reports() {
                   </div>
 
                   {/* Top Opportunities */}
-                  {report.recommendations && report.recommendations.length > 0 && (
-                    <div>
-                      <h3 className="text-lg font-semibold text-white mb-4 flex items-center">
-                        <TrendingUp className="w-5 h-5 mr-2 text-green-400" />
-                        Top Opportunities (Score ≥ 70)
-                      </h3>
-                      
-                      {/* Table Card */}
-                      <Card className="bg-slate-800/40 border-blue-900/40 overflow-hidden">
-                        <CardContent className="p-0">
-                          {/* Table Header */}
-                          <div className="bg-slate-800/60 border-b border-blue-900/50">
-                            <div className="grid grid-cols-12 gap-4 px-6 py-3 text-xs font-semibold text-slate-300 uppercase tracking-wider">
-                              <div className="col-span-1">#</div>
-                              <div className="col-span-2">Symbol</div>
-                              <div className="col-span-2">Company</div>
-                              <div className="col-span-1 text-center">Score</div>
-                              <div className="col-span-1 text-center">Rating</div>
-                              <div className="col-span-5">Buy Rationale</div>
+                  {report.recommendations && report.recommendations.length > 0 && (() => {
+                    const uniqueRecommendations = report.recommendations.filter(
+                      (stock, index, self) => index === self.findIndex((s) => s.symbol === stock.symbol)
+                    );
+                    return (
+                      <div>
+                        <h3 className="text-lg font-semibold text-white mb-4 flex items-center">
+                          <TrendingUp className="w-5 h-5 mr-2 text-green-400" />
+                          Top Opportunities (Score ≥ 70)
+                        </h3>
+                        
+                        {/* Table Card */}
+                        <Card className="bg-slate-800/40 border-blue-900/40 overflow-hidden">
+                          <CardContent className="p-0">
+                            {/* Table Header */}
+                            <div className="bg-slate-800/60 border-b border-blue-900/50">
+                              <div className="grid grid-cols-12 gap-4 px-6 py-3 text-xs font-semibold text-slate-300 uppercase tracking-wider">
+                                <div className="col-span-1">#</div>
+                                <div className="col-span-2">Symbol</div>
+                                <div className="col-span-2">Company</div>
+                                <div className="col-span-1 text-center">Score</div>
+                                <div className="col-span-1 text-center">Rating</div>
+                                <div className="col-span-5">Buy Rationale</div>
+                              </div>
                             </div>
-                          </div>
-                          
-                          {/* Table Body */}
-                          <div className="divide-y divide-blue-900/30">
-                            {report.recommendations.map((stock, idx) => (
-                              <div
-                                key={stock.symbol}
+                            
+                            {/* Table Body */}
+                            <div className="divide-y divide-blue-900/30">
+                              {uniqueRecommendations.map((stock, idx) => (
+                                <div
+                                  key={`${stock.symbol}-${idx}`}
                                 className="grid grid-cols-12 gap-4 px-6 py-4 hover:bg-slate-800/30 transition-colors items-center"
                               >
                                 {/* Rank */}
@@ -414,7 +418,8 @@ export default function Reports() {
                         </CardContent>
                       </Card>
                     </div>
-                  )}
+                  );
+                })()}
 
                   {/* Sector Analysis */}
                   {report.sectorAnalysis && report.sectorAnalysis.length > 0 && (

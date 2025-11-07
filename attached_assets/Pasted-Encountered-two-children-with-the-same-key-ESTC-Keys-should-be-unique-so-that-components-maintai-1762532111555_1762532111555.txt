@@ -1,0 +1,54 @@
+Encountered two children with the same key, `ESTC`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+console.error @ rectAtcmiSIBDvWVE:78
+(anonymous) @ react-dom_client.js?v=fb0623db:4925
+runWithFiberInDEV @ react-dom_client.js?v=fb0623db:997
+warnOnInvalidKey @ react-dom_client.js?v=fb0623db:4924
+reconcileChildrenArray @ react-dom_client.js?v=fb0623db:4965
+reconcileChildFibersImpl @ react-dom_client.js?v=fb0623db:5171
+(anonymous) @ react-dom_client.js?v=fb0623db:5237
+reconcileChildren @ react-dom_client.js?v=fb0623db:7182
+beginWork @ react-dom_client.js?v=fb0623db:8701
+runWithFiberInDEV @ react-dom_client.js?v=fb0623db:997
+performUnitOfWork @ react-dom_client.js?v=fb0623db:12561
+workLoopSync @ react-dom_client.js?v=fb0623db:12424
+renderRootSync @ react-dom_client.js?v=fb0623db:12408
+performWorkOnRoot @ react-dom_client.js?v=fb0623db:11766
+performSyncWorkOnRoot @ react-dom_client.js?v=fb0623db:13517
+flushSyncWorkAcrossRoots_impl @ react-dom_client.js?v=fb0623db:13414
+processRootScheduleInMicrotask @ react-dom_client.js?v=fb0623db:13437
+(anonymous) @ react-dom_client.js?v=fb0623db:13531
+<div>
+exports.jsxDEV @ react_jsx-dev-runtime.js?v=fb0623db:247
+(anonymous) @ Reports.tsx:353
+(anonymous) @ Reports.tsx:352
+Reports @ Reports.tsx:277
+react_stack_bottom_frame @ react-dom_client.js?v=fb0623db:18509
+renderWithHooks @ react-dom_client.js?v=fb0623db:5654
+updateFunctionComponent @ react-dom_client.js?v=fb0623db:7475
+beginWork @ react-dom_client.js?v=fb0623db:8525
+runWithFiberInDEV @ react-dom_client.js?v=fb0623db:997
+performUnitOfWork @ react-dom_client.js?v=fb0623db:12561
+workLoopSync @ react-dom_client.js?v=fb0623db:12424
+renderRootSync @ react-dom_client.js?v=fb0623db:12408
+performWorkOnRoot @ react-dom_client.js?v=fb0623db:11766
+performSyncWorkOnRoot @ react-dom_client.js?v=fb0623db:13517
+flushSyncWorkAcrossRoots_impl @ react-dom_client.js?v=fb0623db:13414
+processRootScheduleInMicrotask @ react-dom_client.js?v=fb0623db:13437
+(anonymous) @ react-dom_client.js?v=fb0623db:13531
+<Reports>
+exports.createElement @ chunk-KSRSB2NJ.js?v=fb0623db:793
+h_route @ wouter.js?v=fb0623db:257
+Route @ wouter.js?v=fb0623db:289
+react_stack_bottom_frame @ react-dom_client.js?v=fb0623db:18509
+renderWithHooks @ react-dom_client.js?v=fb0623db:5654
+updateFunctionComponent @ react-dom_client.js?v=fb0623db:7475
+beginWork @ react-dom_client.js?v=fb0623db:8525
+runWithFiberInDEV @ react-dom_client.js?v=fb0623db:997
+performUnitOfWork @ react-dom_client.js?v=fb0623db:12561
+workLoopSync @ react-dom_client.js?v=fb0623db:12424
+renderRootSync @ react-dom_client.js?v=fb0623db:12408
+performWorkOnRoot @ react-dom_client.js?v=fb0623db:11766
+performSyncWorkOnRoot @ react-dom_client.js?v=fb0623db:13517
+flushSyncWorkAcrossRoots_impl @ react-dom_client.js?v=fb0623db:13414
+processRootScheduleInMicrotask @ react-dom_client.js?v=fb0623db:13437
+(anonymous) @ react-dom_client.js?v=fb0623db:13531Understand this error
