@@ -11,6 +11,7 @@ import { db } from "../db";
 import { users } from "@shared/schema";
 import { eq } from "drizzle-orm";
 import type { Request, Response } from "express";
+import { startScheduler } from "../scheduler";
 
 function isPortAvailable(port: number): Promise<boolean> {
   return new Promise(resolve => {
@@ -79,6 +80,9 @@ async function startServer() {
 
   server.listen(port, "0.0.0.0", () => {
     console.log(`Server running on http://0.0.0.0:${port}/`);
+    
+    // Start scheduled tasks (daily reports at 6:00 AM PST)
+    startScheduler();
   });
 }
 

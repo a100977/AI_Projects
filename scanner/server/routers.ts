@@ -2,7 +2,7 @@ import { systemRouter } from "./_core/systemRouter";
 import { publicProcedure, protectedProcedure, router } from "./_core/trpc";
 import { z } from 'zod';
 import * as airtable from './airtable';
-import { fetchMultipleStocks, validateStockSymbol, searchStocks, fetchMarketIndexes, getMarketNews } from './marketData';
+import { fetchMultipleStocks, validateStockSymbol, searchStocks, fetchMarketIndexes, getMarketNews, fetchStockData } from './marketData';
 import { analyzeStock } from './screener';
 
 export const appRouter = router({
@@ -397,6 +397,173 @@ export const appRouter = router({
     getNews: publicProcedure.query(async () => {
       return await getMarketNews();
     }),
+  }),
+
+  reports: router({
+    getDailyReports: protectedProcedure
+      .input(z.object({
+        dateFilter: z.enum(['today', 'yesterday', 'week', 'month']).default('today'),
+      }))
+      .query(async ({ ctx, input }) => {
+        const user = await airtable.findUserByEmail(ctx.user.email!);
+        if (!user) return [];
+
+        const portfolios = await airtable.getUserPortfolios(user.id!);
+        const reports = [];
+
+        const now = new Date();
+        let startDate = new Date();
+        let endDate = new Date();
+
+        switch (input.dateFilter) {
+          case 'yesterday':
+            // Yesterday only - single day
+            startDate.setDate(now.getDate() - 1);
+            endDate.setDate(now.getDate() - 1);
+            break;
+          case 'week':
+            // Last 7 days including today
+            startDate.setDate(now.getDate() - 7);
+            endDate = now;
+            break;
+          case 'month':
+            // Last 30 days including today
+            startDate.setDate(now.getDate() - 30);
+            endDate = now;
+            break;
+          default:
+            // Today only
+            startDate = now;
+            endDate = now;
+        }
+
+        const startDateStr = startDate.toISOString().split('T')[0];
+        const endDateStr = endDate.toISOString().split('T')[0];
+
+        // Fetch stocks and analyses once for all portfolios (performance optimization)
+        const allStocks = await airtable.getStocks();
+        const allAnalyses = await airtable.getAnalyses();
+
+        // Filter analyses within date range (inclusive)
+        const filteredAnalyses = allAnalyses.filter(a => {
+          const analysisDate = a.fields['Analysis Date'];
+          return analysisDate >= startDateStr && analysisDate <= endDateStr;
+        });
+
+        for (const portfolio of portfolios) {
+          const stockIds = portfolio.fields.Stock || [];
+          if (stockIds.length === 0) continue;
+
+          const portfolioStocks = allStocks.filter(s => stockIds.includes(s.id!));
+          
+          // Get analyses for this portfolio within the date range
+          const portfolioAnalyses = filteredAnalyses.filter(a => 
+            a.fields.Stock && 
+            stockIds.includes(a.fields.Stock[0])
+          );
+
+          const recommendations = portfolioAnalyses
+            .filter(a => a.fields['Total Score'] >= 70)
+            .map(a => {
+              const stock = portfolioStocks.find(s => s.id === a.fields.Stock![0]);
+              return {
+                symbol: stock?.fields['Ticker Symbol'] || '',
+                name: stock?.fields['Stock Name'] || '',
+                score: a.fields['Total Score'] || 0,
+                price: a.fields['Current Price'] || 0,
+                change: (a.fields['Price Change Percent'] || 0) * a.fields['Current Price']! || 0,
+                changePercent: (a.fields['Price Change Percent'] || 0) * 100,
+                rsi: a.fields['RSI Value'] || 0,
+                volumeRatio: a.fields['Volume Ratio'] || 0,
+                recommendation: a.fields.Recommendation || 'HOLD',
+                sector: stock?.fields.Sector || 'Technology',
+              };
+            })
+            .sort((a, b) => b.score - a.score);
+
+          const sectorMap = new Map<string, { count: number; scores: number[] }>();
+          recommendations.forEach(r => {
+            if (!sectorMap.has(r.sector)) {
+              sectorMap.set(r.sector, { count: 0, scores: [] });
+            }
+            const sector = sectorMap.get(r.sector)!;
+            sector.count++;
+            sector.scores.push(r.score);
+          });
+
+          const sectorAnalysis = Array.from(sectorMap.entries()).map(([sector, data]) => ({
+            sector,
+            count: data.count,
+            avgScore: data.scores.reduce((a, b) => a + b, 0) / data.scores.length,
+            topScore: Math.max(...data.scores),
+          }));
+
+          reports.push({
+            id: portfolio.id!,
+            date: endDateStr,
+            portfolioId: portfolio.id!,
+            portfolioName: portfolio.fields.Name,
+            totalStocks: stockIds.length,
+            analyzedStocks: portfolioAnalyses.length,
+            strongBuyCount: recommendations.filter(r => r.score >= 90).length,
+            buyCount: recommendations.filter(r => r.score >= 70 && r.score < 90).length,
+            recommendations,
+            sectorAnalysis,
+          });
+        }
+
+        return reports;
+      }),
+
+    generateReport: protectedProcedure
+      .mutation(async ({ ctx }) => {
+        const user = await airtable.findUserByEmail(ctx.user.email!);
+        if (!user) throw new Error('User not found');
+
+        const portfolios = await airtable.getUserPortfolios(user.id!);
+        
+        for (const portfolio of portfolios) {
+          const stockIds = portfolio.fields.Stock || [];
+          if (stockIds.length === 0) continue;
+
+          const stocks = await airtable.getStocks();
+          const portfolioStocks = stocks.filter(s => stockIds.includes(s.id!));
+
+          for (const stock of portfolioStocks) {
+            try {
+              const stockData = await fetchStockData(stock.fields['Ticker Symbol']);
+              const analysis = analyzeStock(stockData);
+              
+              await airtable.createAnalysis({
+                Stock: [stock.id!],
+                'Analysis Date': new Date().toISOString().split('T')[0],
+                'Total Score': analysis.totalScore,
+                'SMA Score': analysis.scores.sma,
+                'MACD Score': analysis.scores.macd,
+                'RSI Score': analysis.scores.rsi,
+                'Volume Score': analysis.scores.volume,
+                'High Score': analysis.scores.highBreakout,
+                'Current Price': analysis.indicators.currentPrice,
+                'Price Change Percent': analysis.priceChange / 100,
+                Recommendation: analysis.recommendation,
+                Alerts: analysis.alerts.join(', '),
+                'SMA 10': analysis.indicators.sma10,
+                'SMA 50': analysis.indicators.sma50,
+                'SMA 200': analysis.indicators.sma200,
+                'RSI Value': analysis.indicators.rsi,
+                'MACD Line': analysis.indicators.macdLine,
+                'Signal Line': analysis.indicators.signalLine,
+                'Volume Ratio': analysis.indicators.volumeRatio,
+                '52 Week High': analysis.indicators.high52w,
+              });
+            } catch (error) {
+              console.error(`Failed to analyze ${stock.fields['Ticker Symbol']}:`, error);
+            }
+          }
+        }
+
+        return { success: true };
+      }),
   }),
 });
 

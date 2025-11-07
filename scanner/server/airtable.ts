@@ -98,6 +98,19 @@ export interface AirtableStockAnalysis {
 /**
  * User operations
  */
+export async function getUsers(): Promise<AirtableUser[]> {
+  try {
+    const records = await base(TABLES.USERS).select().all();
+    return records.map(record => ({
+      id: record.id,
+      fields: record.fields as AirtableUser['fields'],
+    }));
+  } catch (error) {
+    console.error('[AirTable] Error getting users:', error);
+    throw error;
+  }
+}
+
 export async function findUserByEmail(email: string): Promise<AirtableUser | null> {
   try {
     const records = await base(TABLES.USERS)
@@ -295,6 +308,19 @@ export async function createStock(stock: Partial<AirtableStock['fields']>): Prom
   }
 }
 
+export async function getStocks(): Promise<AirtableStock[]> {
+  try {
+    const records = await base(TABLES.STOCKS).select().all();
+    return records.map(record => ({
+      id: record.id,
+      fields: record.fields as AirtableStock['fields'],
+    }));
+  } catch (error) {
+    console.error('[AirTable] Error getting all stocks:', error);
+    throw error;
+  }
+}
+
 export async function getStocksByIds(stockIds: string[]): Promise<AirtableStock[]> {
   try {
     if (stockIds.length === 0) return [];
@@ -318,6 +344,24 @@ export async function getStocksByIds(stockIds: string[]): Promise<AirtableStock[
 /**
  * Stock Analysis operations
  */
+export async function getAnalyses(): Promise<AirtableStockAnalysis[]> {
+  try {
+    const records = await base(TABLES.STOCK_ANALYSIS)
+      .select({
+        sort: [{ field: 'Analysis Date', direction: 'desc' }],
+      })
+      .all();
+
+    return records.map(record => ({
+      id: record.id,
+      fields: record.fields as AirtableStockAnalysis['fields'],
+    }));
+  } catch (error) {
+    console.error('[AirTable] Error getting analysis:', error);
+    throw error;
+  }
+}
+
 export async function getAnalysisForStocks(stockIds: string[], analysisDate?: string): Promise<AirtableStockAnalysis[]> {
   try {
     if (stockIds.length === 0) return [];

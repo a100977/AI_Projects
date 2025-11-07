@@ -7,7 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { trpc } from "@/lib/trpc";
 import { APP_TITLE, getLoginUrl } from "@/const";
-import { Plus, TrendingUp, Folder, LogOut, Loader2 } from "lucide-react";
+import { Plus, TrendingUp, Folder, LogOut, Loader2, FileText } from "lucide-react";
 import { useLocation } from "wouter";
 import { useState, useEffect } from "react";
 import { toast } from "sonner";
@@ -84,6 +84,10 @@ export default function Dashboard() {
           </div>
           <div className="flex items-center gap-4">
             <span className="text-sm text-slate-400">{user?.email}</span>
+            <Button variant="ghost" size="sm" onClick={() => setLocation("/reports")}>
+              <FileText className="w-4 h-4 mr-2" />
+              Reports
+            </Button>
             <Button variant="ghost" size="sm" onClick={handleLogout}>
               <LogOut className="w-4 h-4 mr-2" />
               Logout
