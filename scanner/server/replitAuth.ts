@@ -110,6 +110,14 @@ export async function setupAuth(app: Express) {
   // Keep track of registered strategies
   const registeredStrategies = new Set<string>();
 
+  // Get the Replit domain for OAuth callbacks
+  const getReplitDomain = () => {
+    if (process.env.REPL_SLUG && process.env.REPL_OWNER) {
+      return `${process.env.REPL_SLUG}.${process.env.REPL_OWNER}.repl.co`;
+    }
+    return null;
+  };
+
   // Helper function to ensure strategy exists for a domain
   const ensureStrategy = (domain: string, protocol: string = 'https') => {
     const strategyName = `replitauth:${domain}`;
@@ -134,32 +142,35 @@ export async function setupAuth(app: Express) {
   passport.deserializeUser((user: Express.User, cb) => cb(null, user));
 
   app.get("/api/login", (req, res, next) => {
-    const protocol = req.protocol;
-    const host = req.get('host') || req.hostname;
-    ensureStrategy(host, protocol);
-    passport.authenticate(`replitauth:${host}`, {
+    // Always use Replit domain for OAuth callbacks (Replit OIDC doesn't accept localhost)
+    const domain = getReplitDomain() || req.get('host') || req.hostname;
+    const protocol = 'https'; // Replit domains are always HTTPS
+    ensureStrategy(domain, protocol);
+    passport.authenticate(`replitauth:${domain}`, {
       prompt: "login consent",
       scope: ["openid", "email", "profile", "offline_access"],
     })(req, res, next);
   });
 
   app.get("/api/callback", (req, res, next) => {
-    const protocol = req.protocol;
-    const host = req.get('host') || req.hostname;
-    ensureStrategy(host, protocol);
-    passport.authenticate(`replitauth:${host}`, {
+    // Always use Replit domain for OAuth callbacks
+    const domain = getReplitDomain() || req.get('host') || req.hostname;
+    const protocol = 'https';
+    ensureStrategy(domain, protocol);
+    passport.authenticate(`replitauth:${domain}`, {
       successReturnToOrRedirect: "/",
       failureRedirect: "/api/login",
     })(req, res, next);
   });
 
   app.get("/api/logout", (req, res) => {
-    const host = req.get('host') || req.hostname;
+    const domain = getReplitDomain() || req.get('host') || req.hostname;
+    const protocol = 'https';
     req.logout(() => {
       res.redirect(
         client.buildEndSessionUrl(config, {
           client_id: process.env.REPL_ID!,
-          post_logout_redirect_uri: `${req.protocol}://${host}`,
+          post_logout_redirect_uri: `${protocol}://${domain}`,
         }).href
       );
     });

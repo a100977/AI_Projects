@@ -87,10 +87,10 @@ Preferred communication style: Simple, everyday language.
 
 **Authentication Mechanisms**:
 - HTTP-only cookies for session management stored in PostgreSQL sessions table
-- Cookie security adapts to environment (secure=false in development, secure=true in production)
-- SameSite settings for cross-origin support
+- OAuth callback URLs use Replit domain (*.repl.co) for compatibility with Replit OIDC
+- Session cookies configured for HTTPS access
 - User authentication data stored in PostgreSQL
-- Note: AirTable user synchronization not yet implemented in current auth flow
+- AirTable synchronization available via `auth.syncUser` mutation after login
 
 **API Endpoints**:
 - `/api/login` - Initiates authentication flow
