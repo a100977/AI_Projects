@@ -1,5 +1,3 @@
-import { COOKIE_NAME } from "@shared/const";
-import { getSessionCookieOptions } from "./_core/cookies";
 import { systemRouter } from "./_core/systemRouter";
 import { publicProcedure, protectedProcedure, router } from "./_core/trpc";
 import { z } from 'zod';
@@ -14,9 +12,8 @@ export const appRouter = router({
     me: publicProcedure.query(opts => opts.ctx.user),
     
     logout: publicProcedure.mutation(({ ctx }) => {
-      const cookieOptions = getSessionCookieOptions(ctx.req);
-      ctx.res.clearCookie(COOKIE_NAME, { ...cookieOptions, maxAge: -1 });
-      return { success: true } as const;
+      // Logout is handled by /api/logout endpoint
+      return { success: true, redirectUrl: '/api/logout' } as const;
     }),
     
     // Sync user with AirTable on login
@@ -28,16 +25,20 @@ export const appRouter = router({
       
       if (!airtableUser) {
         // Create new user in AirTable
+        const fullName = user.firstName && user.lastName 
+          ? `${user.firstName} ${user.lastName}` 
+          : user.firstName || user.lastName || '';
+        
         airtableUser = await airtable.createUser({
-          'Full Name': user.name || '',
+          'Full Name': fullName,
           'Email Address': user.email!,
-          'Google ID': user.openId,
+          'Google ID': user.id,
           'Subscription Tier': 'Free',
         });
       } else if (!airtableUser.fields['Google ID']) {
-        // Update existing user with Google ID
+        // Update existing user with Replit ID
         airtableUser = await airtable.updateUser(airtableUser.id!, {
-          'Google ID': user.openId,
+          'Google ID': user.id,
         });
       }
       
