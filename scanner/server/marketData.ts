@@ -205,3 +205,98 @@ export async function searchStocks(query: string): Promise<Array<{ symbol: strin
       stock.name.toUpperCase().includes(upperQuery)
   );
 }
+
+/**
+ * Market Index data structure
+ */
+export interface MarketIndex {
+  symbol: string;
+  name: string;
+  price: number;
+  change: number;
+  changePercent: number;
+}
+
+/**
+ * Fetch market index data (S&P 500, NASDAQ, DOW)
+ */
+export async function fetchMarketIndexes(): Promise<MarketIndex[]> {
+  const indexes = [
+    { symbol: '^GSPC', name: 'S&P 500' },
+    { symbol: '^IXIC', name: 'NASDAQ' },
+    { symbol: '^DJI', name: 'Dow Jones' },
+  ];
+
+  const results: MarketIndex[] = [];
+
+  for (const index of indexes) {
+    try {
+      const url = `${YAHOO_FINANCE_BASE_URL}/${index.symbol}`;
+      const response = await axios.get<YahooFinanceResponse>(url, {
+        params: {
+          range: '1d',
+          interval: '1m',
+        },
+        timeout: 10000,
+      });
+
+      if (response.data.chart.error) {
+        console.error(`Yahoo Finance API error for ${index.symbol}:`, response.data.chart.error);
+        continue;
+      }
+
+      const result = response.data.chart.result[0];
+      if (!result) continue;
+
+      const meta = result.meta;
+      const quotes = result.indicators.quote[0];
+      const prices = quotes.close.filter(p => p !== null && p !== undefined) as number[];
+      
+      if (prices.length === 0) continue;
+
+      const currentPrice = meta.regularMarketPrice || prices[prices.length - 1];
+      const previousClose = prices.length > 1 ? prices[0] : currentPrice;
+      const change = currentPrice - previousClose;
+      const changePercent = (change / previousClose) * 100;
+
+      results.push({
+        symbol: index.symbol,
+        name: index.name,
+        price: currentPrice,
+        change,
+        changePercent,
+      });
+    } catch (error) {
+      console.error(`Failed to fetch index ${index.symbol}:`, error);
+    }
+  }
+
+  return results;
+}
+
+/**
+ * Market news headline structure
+ */
+export interface NewsHeadline {
+  title: string;
+  url: string;
+  source: string;
+}
+
+/**
+ * Get market news headlines
+ */
+export async function getMarketNews(): Promise<NewsHeadline[]> {
+  return [
+    {
+      title: 'Live Market Updates - CNBC',
+      url: 'https://www.cnbc.com/markets/',
+      source: 'CNBC',
+    },
+    {
+      title: 'Market News & Analysis - MarketWatch',
+      url: 'https://www.marketwatch.com/latest-news',
+      source: 'MarketWatch',
+    },
+  ];
+}

@@ -2,7 +2,7 @@ import { systemRouter } from "./_core/systemRouter";
 import { publicProcedure, protectedProcedure, router } from "./_core/trpc";
 import { z } from 'zod';
 import * as airtable from './airtable';
-import { fetchMultipleStocks, validateStockSymbol, searchStocks } from './marketData';
+import { fetchMultipleStocks, validateStockSymbol, searchStocks, fetchMarketIndexes, getMarketNews } from './marketData';
 import { analyzeStock } from './screener';
 
 export const appRouter = router({
@@ -387,6 +387,16 @@ export const appRouter = router({
       .query(async ({ input }) => {
         return await searchStocks(input.query);
       }),
+  }),
+
+  marketData: router({
+    getIndexes: publicProcedure.query(async () => {
+      return await fetchMarketIndexes();
+    }),
+    
+    getNews: publicProcedure.query(async () => {
+      return await getMarketNews();
+    }),
   }),
 });
 

@@ -24,11 +24,18 @@ Preferred communication style: Simple, everyday language.
 
 **Routing**: wouter for lightweight client-side routing
 
+**UI Layout**:
+- **Portfolio View**: 3-panel responsive layout
+  - **Left Panel**: Live market indexes (S&P 500, NASDAQ, Dow Jones) with price changes, market news headlines, and links to financial resources
+  - **Center Panel**: Interactive stock table with sortable columns (Symbol, Name, Price, Score, Rating), row selection for detailed view
+  - **Right Panel**: Selected stock analysis with technical indicator progress bars, alerts, and "View Live Charts" button; shows "Run Screener" prompt when no analysis exists
+
 **Key Design Patterns**:
 - Component-based architecture with shadcn/ui primitives
 - Theme system with light/dark mode support via Context API
 - Error boundaries for graceful error handling
 - Type-safe API calls using tRPC client with superjson transformer
+- Real-time market data integration with auto-refresh
 
 **Build System**: Vite with custom configuration for development HMR and production builds
 
