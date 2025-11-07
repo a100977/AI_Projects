@@ -84,6 +84,10 @@ export default function Dashboard() {
           </div>
           <div className="flex items-center gap-4">
             <span className="text-sm text-slate-400">{user?.email}</span>
+            <Button variant="ghost" size="sm" onClick={() => setLocation("/dashboard")}>
+              <Folder className="w-4 h-4 mr-2" />
+              Portfolios
+            </Button>
             <Button variant="ghost" size="sm" onClick={() => setLocation("/reports")}>
               <FileText className="w-4 h-4 mr-2" />
               Reports

@@ -7,7 +7,6 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { APP_TITLE } from "@/const";
 import { 
-  ArrowLeft, 
   TrendingUp, 
   TrendingDown,
   Calendar,
@@ -17,7 +16,8 @@ import {
   AlertCircle,
   LogOut,
   Loader2,
-  Folder
+  Folder,
+  FileText
 } from "lucide-react";
 
 interface StockRecommendation {
@@ -169,7 +169,11 @@ export default function Reports() {
             <span className="text-sm text-slate-400">{user?.email}</span>
             <Button variant="ghost" size="sm" onClick={() => setLocation("/dashboard")}>
               <Folder className="w-4 h-4 mr-2" />
-              Dashboard
+              Portfolios
+            </Button>
+            <Button variant="ghost" size="sm" onClick={() => setLocation("/reports")}>
+              <FileText className="w-4 h-4 mr-2" />
+              Reports
             </Button>
             <Button variant="ghost" size="sm" onClick={handleLogout}>
               <LogOut className="w-4 h-4 mr-2" />

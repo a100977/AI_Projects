@@ -7,7 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { trpc } from "@/lib/trpc";
 import { APP_TITLE } from "@/const";
-import { ArrowLeft, Plus, Play, TrendingUp, Trash2, Loader2, Search, ExternalLink, BarChart3, Activity, ArrowUpRight, ArrowDownRight, ArrowUpDown, ArrowUp, ArrowDown } from "lucide-react";
+import { ArrowLeft, Plus, Play, TrendingUp, Trash2, Loader2, Search, ExternalLink, BarChart3, Activity, ArrowUpRight, ArrowDownRight, ArrowUpDown, ArrowUp, ArrowDown, LogOut, Folder, FileText } from "lucide-react";
 import { useLocation, useRoute } from "wouter";
 import { useState, useEffect, useMemo } from "react";
 import { toast } from "sonner";
@@ -157,6 +157,10 @@ export default function Portfolio() {
     }
   };
 
+  const handleLogout = () => {
+    window.location.href = "/api/logout";
+  };
+
   const getRecommendationColor = (rec: string) => {
     switch (rec) {
       case 'STRONG BUY': return 'bg-green-600';
@@ -193,11 +197,38 @@ export default function Portfolio() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-950 via-blue-950 to-slate-950 text-white">
-      {/* Header */}
-      <header className="border-b border-blue-900/50 backdrop-blur-sm bg-slate-950/50 sticky top-0 z-50">
-        <div className="container mx-auto px-4 py-3">
+      {/* Header - Same as Dashboard and Reports */}
+      <header className="border-b border-blue-900/50 backdrop-blur-sm bg-slate-950/50">
+        <div className="container mx-auto px-4 py-4 flex justify-between items-center">
+          <div className="flex items-center gap-3">
+            <TrendingUp className="w-8 h-8 text-blue-400" />
+            <h1 className="text-2xl font-bold bg-gradient-to-r from-blue-400 to-cyan-400 bg-clip-text text-transparent">
+              {APP_TITLE}
+            </h1>
+          </div>
+          <div className="flex items-center gap-4">
+            <span className="text-sm text-slate-400">{user?.email}</span>
+            <Button variant="ghost" size="sm" onClick={() => setLocation("/dashboard")}>
+              <Folder className="w-4 h-4 mr-2" />
+              Portfolios
+            </Button>
+            <Button variant="ghost" size="sm" onClick={() => setLocation("/reports")}>
+              <FileText className="w-4 h-4 mr-2" />
+              Reports
+            </Button>
+            <Button variant="ghost" size="sm" onClick={handleLogout}>
+              <LogOut className="w-4 h-4 mr-2" />
+              Logout
+            </Button>
+          </div>
+        </div>
+      </header>
+
+      {/* Portfolio Title Section */}
+      <div className="border-b border-blue-900/30 bg-slate-900/30 sticky top-[73px] z-40">
+        <div className="container mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-3">
               <Button
                 variant="ghost"
                 size="sm"
@@ -207,10 +238,9 @@ export default function Portfolio() {
                 <ArrowLeft className="w-4 h-4 mr-2" />
                 Back
               </Button>
-              <TrendingUp className="w-6 h-6 text-blue-400" />
               <div>
-                <h1 className="text-lg font-bold">{portfolio.name}</h1>
-                <p className="text-xs text-slate-400">{portfolio.stocks?.length || 0} stocks</p>
+                <h2 className="text-2xl font-bold">{portfolio.name}</h2>
+                <p className="text-sm text-slate-400">{portfolio.stocks?.length || 0} stocks</p>
               </div>
             </div>
             <div className="flex gap-2">
@@ -309,7 +339,7 @@ export default function Portfolio() {
             </div>
           </div>
         </div>
-      </header>
+      </div>
 
       {/* 3-Column Layout */}
       <div className="container mx-auto px-4 py-4">
