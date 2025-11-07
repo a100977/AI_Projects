@@ -1,3 +1,4 @@
+// Replit Auth integration - PostgreSQL configuration
 import { defineConfig } from "drizzle-kit";
 
 const connectionString = process.env.DATABASE_URL;
@@ -6,9 +7,9 @@ if (!connectionString) {
 }
 
 export default defineConfig({
-  schema: "./drizzle/schema.ts",
-  out: "./drizzle",
-  dialect: "mysql",
+  schema: "./shared/schema.ts",
+  out: "./drizzle/migrations",
+  dialect: "postgresql",
   dbCredentials: {
     url: connectionString,
   },

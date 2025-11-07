@@ -5,9 +5,10 @@ This repository contains multiple AI-focused projects and marketing materials. T
 The Bullish Breakout Screener is a full-stack web application that:
 - Analyzes stocks using 5 technical indicators (SMA, MACD, RSI, Volume, 52-week highs)
 - Provides portfolio management with subscription tiers (Free, Pro, Premium)
-- Uses AirTable as the backend database
+- Uses AirTable as the backend database for application data
+- Uses PostgreSQL for user authentication and session management
 - Integrates with Yahoo Finance for real-time market data
-- Implements Google OAuth authentication via Manus
+- Implements Replit Auth for multi-provider authentication (Google, GitHub, X, Apple, email/password)
 
 # User Preferences
 
@@ -38,14 +39,14 @@ Preferred communication style: Simple, everyday language.
 **API Layer**: tRPC 11 for end-to-end type safety between frontend and backend
 
 **Database Strategy**: Dual database approach
-- **AirTable** (primary): No-SQL database for users, portfolios, stocks, and analysis results
-- **MySQL** (optional): Traditional SQL database via Drizzle ORM for potential future migration
+- **AirTable** (primary): No-SQL database for portfolios, stocks, and analysis results
+- **PostgreSQL** (authentication): Relational database for user authentication and sessions via Drizzle ORM with Neon-backed Replit database
 
 **Authentication Flow**:
-- Manus OAuth integration for Google Sign-In
-- Session-based authentication with HTTP-only cookies
-- JWT token management with cookie secret
-- User synchronization between OAuth provider and AirTable
+- Replit Auth integration for multi-provider sign-in (Google, GitHub, X, Apple, email/password)
+- Session-based authentication with HTTP-only cookies stored in PostgreSQL
+- JWT token management via Replit Auth SDK
+- User data stored in PostgreSQL (auth) and synchronized to AirTable (application data)
 
 **Core Services**:
 1. **Market Data Service** (`marketData.ts`): Yahoo Finance API integration for real-time stock data
@@ -74,33 +75,41 @@ Preferred communication style: Simple, everyday language.
 3. **Stocks**: Ticker Symbol, Stock Name, Exchange, Current Price, Logo, Sector, Market Cap
 4. **Stock Analysis**: 22 fields storing technical indicators and scores
 
-**Alternative Database**: MySQL via Drizzle ORM
-- Schema defined in `drizzle/schema.ts`
-- Users table with authentication fields
-- Migration system available but not primary storage
-
-**File Storage**: Manus storage proxy with Bearer token authentication for media uploads
+**Authentication Database**: PostgreSQL via Drizzle ORM
+- Schema defined in `shared/schema.ts`
+- Users table with Replit Auth fields (id, name, email, image)
+- Sessions table for authentication state management
+- Drizzle migrations system with PostgreSQL dialect
 
 ## Authentication and Authorization
 
-**OAuth Provider**: Manus OAuth with Google as identity provider
+**Authentication Provider**: Replit Auth with multiple identity providers (Google, GitHub, X, Apple, email/password)
 
 **Authentication Mechanisms**:
-- HTTP-only cookies for session management
-- Cookie domain and security settings based on request protocol (HTTP/HTTPS)
-- SameSite=none for cross-origin support
-- Session synchronization with AirTable on login
+- HTTP-only cookies for session management stored in PostgreSQL sessions table
+- Cookie security adapts to environment (secure=false in development, secure=true in production)
+- SameSite settings for cross-origin support
+- User authentication data stored in PostgreSQL
+- Note: AirTable user synchronization not yet implemented in current auth flow
+
+**API Endpoints**:
+- `/api/login` - Initiates authentication flow
+- `/api/callback` - OAuth callback handler
+- `/api/logout` - Destroys user session
+- `/api/auth/user` - Returns authenticated user data
 
 **Authorization Levels**:
 - Public procedures: No authentication required
-- Protected procedures: Requires valid user session
-- Admin procedures: Requires admin role (configured in MySQL schema)
+- Protected procedures: Requires valid user session via isAuthenticated middleware
+- Admin procedures: Reserved for future role-based access control
 
 **User Session Flow**:
-1. User initiates Google Sign-In via OAuth portal
-2. OAuth callback validates token and creates/updates user in MySQL
-3. User profile synced to AirTable for application data
-4. Session cookie issued for subsequent requests
+1. User clicks "Sign In" button which redirects to `/api/login`
+2. Replit Auth handles OAuth flow with selected provider
+3. OAuth callback (`/api/callback`) validates token and creates/updates user in PostgreSQL
+4. Session cookie issued and stored in PostgreSQL sessions table
+5. Frontend queries `/api/auth/user` to fetch authenticated user data
+6. Future: AirTable synchronization will be implemented to link auth users with portfolio data
 
 ## External Dependencies
 
@@ -115,14 +124,10 @@ Preferred communication style: Simple, everyday language.
    - Chart data endpoint for historical prices
    - Alternative: Alpha Vantage (mentioned but not implemented)
 
-3. **Manus OAuth** (Authentication)
-   - Google Sign-In integration
-   - OAuth server URL configuration
-   - App ID and redirect URI management
-
-4. **Manus Forge API** (Platform Services)
-   - Image generation service
-   - Data API for external integrations
+3. **Replit Auth** (Authentication)
+   - Multi-provider authentication (Google, GitHub, X, Apple, email/password)
+   - Built-in session management with PostgreSQL storage
+   - Automatic OAuth flow handling and token management
    - Storage proxy for file uploads
    - Bearer token authentication
 

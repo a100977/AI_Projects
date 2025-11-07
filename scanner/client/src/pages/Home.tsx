@@ -10,7 +10,6 @@ export default function Home() {
   const { user, loading, isAuthenticated } = useAuth();
   const [, setLocation] = useLocation();
   const loginUrl = getLoginUrl();
-  const isOAuthConfigured = loginUrl !== null;
 
   useEffect(() => {
     if (isAuthenticated && !loading) {
@@ -37,21 +36,12 @@ export default function Home() {
               {APP_TITLE}
             </h1>
           </div>
-          {isOAuthConfigured ? (
-            <Button
-              onClick={() => window.location.href = loginUrl!}
-              className="bg-blue-600 hover:bg-blue-700"
-            >
-              Sign In with Google
-            </Button>
-          ) : (
-            <Button
-              disabled
-              className="bg-slate-600 cursor-not-allowed"
-            >
-              Authentication Setup Required
-            </Button>
-          )}
+          <Button
+            onClick={() => window.location.href = loginUrl}
+            className="bg-blue-600 hover:bg-blue-700"
+          >
+            Sign In
+          </Button>
         </div>
       </header>
 
@@ -66,13 +56,10 @@ export default function Home() {
           </p>
           <Button
             size="lg"
-            onClick={() => isOAuthConfigured && loginUrl && (window.location.href = loginUrl)}
-            disabled={!isOAuthConfigured}
-            className={isOAuthConfigured 
-              ? "bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 text-lg px-8 py-6"
-              : "bg-slate-600 cursor-not-allowed text-lg px-8 py-6"}
+            onClick={() => window.location.href = loginUrl}
+            className="bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 text-lg px-8 py-6"
           >
-            {isOAuthConfigured ? "Get Started Free" : "Authentication Setup Required"}
+            Get Started Free
           </Button>
         </div>
       </section>
@@ -211,13 +198,10 @@ export default function Home() {
           </p>
           <Button
             size="lg"
-            onClick={() => isOAuthConfigured && loginUrl && (window.location.href = loginUrl)}
-            disabled={!isOAuthConfigured}
-            className={isOAuthConfigured 
-              ? "bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 text-lg px-8 py-6"
-              : "bg-slate-600 cursor-not-allowed text-lg px-8 py-6"}
+            onClick={() => window.location.href = loginUrl}
+            className="bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 text-lg px-8 py-6"
           >
-            {isOAuthConfigured ? "Start Free Trial" : "Authentication Setup Required"}
+            Start Free Trial
           </Button>
         </div>
       </section>
