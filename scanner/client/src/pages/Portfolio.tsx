@@ -619,7 +619,7 @@ export default function Portfolio() {
                                     {analysis.recommendation === 'PASS' && (
                                       <div className="w-2 h-2 rounded-full bg-slate-500" />
                                     )}
-                                    <Badge className={`${getRecommendationColor(analysis.recommendation)} text-xs`}>
+                                    <Badge variant={null} className={`${getRecommendationColor(analysis.recommendation)} text-white text-xs border-0`}>
                                       {analysis.recommendation}
                                     </Badge>
                                   </div>
@@ -674,7 +674,7 @@ export default function Portfolio() {
                         <CardTitle className="text-xl">{selectedStock.symbol}</CardTitle>
                         <CardDescription className="text-sm mt-1">{selectedStock.name}</CardDescription>
                       </div>
-                      <Badge className={getRecommendationColor(selectedAnalysis.recommendation || '')}>
+                      <Badge variant={null} className={`${getRecommendationColor(selectedAnalysis.recommendation || '')} text-white border-0`}>
                         {selectedAnalysis.recommendation}
                       </Badge>
                     </div>

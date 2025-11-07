@@ -475,7 +475,7 @@ export default function Reports() {
                                     {stock.recommendation === 'PASS' && (
                                       <div className="w-2 h-2 rounded-full bg-slate-500" />
                                     )}
-                                    <Badge className={`${getRecommendationColor(stock.recommendation)} px-3 py-1 text-xs font-semibold`}>
+                                    <Badge variant={null} className={`${getRecommendationColor(stock.recommendation)} px-3 py-1 text-xs font-semibold border-0`}>
                                       {stock.recommendation}
                                     </Badge>
                                   </div>
@@ -584,7 +584,7 @@ export default function Reports() {
                                     {stock.recommendation === 'PASS' && (
                                       <div className="w-2 h-2 rounded-full bg-slate-500" />
                                     )}
-                                    <Badge className={`${getRecommendationColor(stock.recommendation)} text-xs`}>
+                                    <Badge variant={null} className={`${getRecommendationColor(stock.recommendation)} text-xs border-0`}>
                                       {stock.recommendation}
                                     </Badge>
                                   </div>
