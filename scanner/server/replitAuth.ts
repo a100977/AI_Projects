@@ -22,7 +22,6 @@ const getOidcConfig = memoize(
 
 export function getSession() {
   const sessionTtl = 7 * 24 * 60 * 60 * 1000; // 1 week
-  const isDevelopment = process.env.NODE_ENV === 'development';
   const pgStore = connectPg(session);
   const sessionStore = new pgStore({
     conString: process.env.DATABASE_URL,
@@ -37,8 +36,7 @@ export function getSession() {
     saveUninitialized: false,
     cookie: {
       httpOnly: true,
-      secure: !isDevelopment,
-      sameSite: isDevelopment ? 'lax' : 'none',
+      secure: true,
       maxAge: sessionTtl,
     },
   });
@@ -110,26 +108,16 @@ export async function setupAuth(app: Express) {
   // Keep track of registered strategies
   const registeredStrategies = new Set<string>();
 
-  // Get the Replit domain for OAuth callbacks
-  const getReplitDomain = () => {
-    if (process.env.REPL_SLUG && process.env.REPL_OWNER) {
-      return `${process.env.REPL_SLUG}.${process.env.REPL_OWNER}.repl.co`;
-    }
-    return null;
-  };
-
   // Helper function to ensure strategy exists for a domain
-  const ensureStrategy = (domain: string, protocol: string = 'https') => {
+  const ensureStrategy = (domain: string) => {
     const strategyName = `replitauth:${domain}`;
     if (!registeredStrategies.has(strategyName)) {
-      const callbackURL = `${protocol}://${domain}/api/callback`;
-      console.log(`[Replit Auth] Registering strategy for ${callbackURL}`);
       const strategy = new Strategy(
         {
           name: strategyName,
           config,
           scope: "openid email profile offline_access",
-          callbackURL,
+          callbackURL: `https://${domain}/api/callback`,
         },
         verify
       );
@@ -142,35 +130,27 @@ export async function setupAuth(app: Express) {
   passport.deserializeUser((user: Express.User, cb) => cb(null, user));
 
   app.get("/api/login", (req, res, next) => {
-    // Always use Replit domain for OAuth callbacks (Replit OIDC doesn't accept localhost)
-    const domain = getReplitDomain() || req.get('host') || req.hostname;
-    const protocol = 'https'; // Replit domains are always HTTPS
-    ensureStrategy(domain, protocol);
-    passport.authenticate(`replitauth:${domain}`, {
+    ensureStrategy(req.hostname);
+    passport.authenticate(`replitauth:${req.hostname}`, {
       prompt: "login consent",
       scope: ["openid", "email", "profile", "offline_access"],
     })(req, res, next);
   });
 
   app.get("/api/callback", (req, res, next) => {
-    // Always use Replit domain for OAuth callbacks
-    const domain = getReplitDomain() || req.get('host') || req.hostname;
-    const protocol = 'https';
-    ensureStrategy(domain, protocol);
-    passport.authenticate(`replitauth:${domain}`, {
+    ensureStrategy(req.hostname);
+    passport.authenticate(`replitauth:${req.hostname}`, {
       successReturnToOrRedirect: "/",
       failureRedirect: "/api/login",
     })(req, res, next);
   });
 
   app.get("/api/logout", (req, res) => {
-    const domain = getReplitDomain() || req.get('host') || req.hostname;
-    const protocol = 'https';
     req.logout(() => {
       res.redirect(
         client.buildEndSessionUrl(config, {
           client_id: process.env.REPL_ID!,
-          post_logout_redirect_uri: `${protocol}://${domain}`,
+          post_logout_redirect_uri: `${req.protocol}://${req.hostname}`,
         }).href
       );
     });
