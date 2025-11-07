@@ -5,6 +5,7 @@ import { useAuth } from "@/_core/hooks/useAuth";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { APP_TITLE } from "@/const";
 import { 
   ArrowLeft, 
   TrendingUp, 
@@ -13,7 +14,10 @@ import {
   Download,
   RefreshCw,
   BarChart3,
-  AlertCircle
+  AlertCircle,
+  LogOut,
+  Loader2,
+  Folder
 } from "lucide-react";
 
 interface StockRecommendation {
@@ -62,7 +66,7 @@ interface DailyReport {
 }
 
 export default function Reports() {
-  const { isAuthenticated, loading } = useAuth();
+  const { user, isAuthenticated, loading } = useAuth();
   const [, setLocation] = useLocation();
   const [selectedDate, setSelectedDate] = useState<'today' | 'yesterday' | 'week' | 'month'>('today');
 
@@ -138,31 +142,50 @@ export default function Reports() {
     return `Showing ${mainStrength} with score ${stock.score}/100`;
   };
 
-  if (loading) {
+  const handleLogout = () => {
+    window.location.href = "/api/logout";
+  };
+
+  if (loading || !isAuthenticated) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-950 via-blue-950 to-slate-900 flex items-center justify-center">
-        <div className="text-white">Loading...</div>
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-950 via-blue-950 to-slate-950">
+        <Loader2 className="w-8 h-8 animate-spin text-blue-400" />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-blue-950 to-slate-900">
-      {/* Header */}
-      <div className="border-b border-blue-900/50 bg-slate-900/50 backdrop-blur-sm">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-blue-950 to-slate-950 text-white">
+      {/* Header - Same as Dashboard */}
+      <header className="border-b border-blue-900/50 backdrop-blur-sm bg-slate-950/50">
+        <div className="container mx-auto px-4 py-4 flex justify-between items-center">
+          <div className="flex items-center gap-3">
+            <TrendingUp className="w-8 h-8 text-blue-400" />
+            <h1 className="text-2xl font-bold bg-gradient-to-r from-blue-400 to-cyan-400 bg-clip-text text-transparent">
+              {APP_TITLE}
+            </h1>
+          </div>
+          <div className="flex items-center gap-4">
+            <span className="text-sm text-slate-400">{user?.email}</span>
+            <Button variant="ghost" size="sm" onClick={() => setLocation("/dashboard")}>
+              <Folder className="w-4 h-4 mr-2" />
+              Dashboard
+            </Button>
+            <Button variant="ghost" size="sm" onClick={handleLogout}>
+              <LogOut className="w-4 h-4 mr-2" />
+              Logout
+            </Button>
+          </div>
+        </div>
+      </header>
+
+      {/* Page Title Section */}
+      <div className="border-b border-blue-900/30 bg-slate-900/30">
+        <div className="container mx-auto px-4 py-6">
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <Link href="/dashboard">
-                <Button variant="ghost" size="sm" className="text-slate-300 hover:text-white">
-                  <ArrowLeft className="w-4 h-4 mr-2" />
-                  Back to Dashboard
-                </Button>
-              </Link>
-              <div>
-                <h1 className="text-2xl font-bold text-white">Daily Portfolio Reports</h1>
-                <p className="text-sm text-slate-400">Automated daily analysis at 6:00 AM PST</p>
-              </div>
+            <div>
+              <h2 className="text-3xl font-bold text-white mb-1">Daily Portfolio Reports</h2>
+              <p className="text-sm text-slate-400">Automated daily analysis at 6:00 AM PST</p>
             </div>
             <Button
               onClick={handleGenerateReport}
@@ -186,7 +209,7 @@ export default function Reports() {
       </div>
 
       {/* Main Content */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="container mx-auto px-4 py-8">
         {/* Date Filter */}
         <div className="mb-6">
           <div className="flex gap-2">
