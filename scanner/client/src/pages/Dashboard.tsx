@@ -59,9 +59,8 @@ export default function Dashboard() {
     }
   };
 
-  const handleLogout = async () => {
-    await logout();
-    setLocation("/");
+  const handleLogout = () => {
+    window.location.href = "/api/logout";
   };
 
   if (authLoading || !isAuthenticated) {
