@@ -56,7 +56,9 @@ interface DailyReport {
   analyzedStocks: number;
   strongBuyCount: number;
   buyCount: number;
+  watchCount?: number;
   recommendations: StockRecommendation[];
+  allAnalyzedStocks?: StockRecommendation[];
   sectorAnalysis: {
     sector: string;
     count: number;
@@ -460,9 +462,23 @@ export default function Reports() {
                                 
                                 {/* Rating Badge */}
                                 <div className="col-span-1 flex justify-center">
-                                  <Badge className={`${getRecommendationColor(stock.recommendation)} px-3 py-1 text-xs font-semibold`}>
-                                    {stock.recommendation}
-                                  </Badge>
+                                  <div className="flex items-center justify-center gap-2">
+                                    {stock.recommendation === 'STRONG BUY' && (
+                                      <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
+                                    )}
+                                    {stock.recommendation === 'BUY' && (
+                                      <div className="w-2 h-2 rounded-full bg-blue-500" />
+                                    )}
+                                    {stock.recommendation === 'WATCH' && (
+                                      <div className="w-2 h-2 rounded-full bg-yellow-500" />
+                                    )}
+                                    {stock.recommendation === 'PASS' && (
+                                      <div className="w-2 h-2 rounded-full bg-slate-500" />
+                                    )}
+                                    <Badge className={`${getRecommendationColor(stock.recommendation)} px-3 py-1 text-xs font-semibold`}>
+                                      {stock.recommendation}
+                                    </Badge>
+                                  </div>
                                 </div>
                                 
                                 {/* Buy Rationale */}
@@ -488,14 +504,14 @@ export default function Reports() {
                   {/* Sector Analysis */}
                   {report.sectorAnalysis && report.sectorAnalysis.length > 0 && (
                     <div>
-                      <h3 className="text-lg font-semibold text-white mb-3">Sector Strength Distribution</h3>
+                      <h3 className="text-lg font-semibold text-white mb-3">Sector Strength Distribution (All Sectors)</h3>
                       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
                         {report.sectorAnalysis.map((sector) => (
                           <Card key={sector.sector} className="bg-slate-800/30 border-blue-800/20">
                             <CardContent className="p-4">
                               <div className="font-semibold text-white mb-2">{sector.sector}</div>
                               <div className="flex items-center justify-between text-sm">
-                                <span className="text-slate-400">{sector.count} stocks</span>
+                                <span className="text-slate-400">{sector.count} stock{sector.count !== 1 ? 's' : ''}</span>
                                 <span className="text-blue-400 font-semibold">Avg: {sector.avgScore.toFixed(0)}</span>
                               </div>
                               <div className="text-xs text-slate-500 mt-1">
@@ -505,6 +521,105 @@ export default function Reports() {
                           </Card>
                         ))}
                       </div>
+                    </div>
+                  )}
+
+                  {/* Complete Analysis Details */}
+                  {report.allAnalyzedStocks && report.allAnalyzedStocks.length > 0 && (
+                    <div>
+                      <h3 className="text-lg font-semibold text-white mb-4 flex items-center">
+                        <BarChart3 className="w-5 h-5 mr-2 text-slate-400" />
+                        Complete Analysis Details (All {report.allAnalyzedStocks.length} Stocks)
+                      </h3>
+                      
+                      <Card className="bg-slate-800/40 border-blue-900/40 overflow-hidden">
+                        <CardContent className="p-0">
+                          {/* Table Header */}
+                          <div className="bg-slate-800/60 border-b border-blue-900/50">
+                            <div className="grid grid-cols-12 gap-4 px-6 py-3 text-xs font-semibold text-slate-300 uppercase tracking-wider">
+                              <div className="col-span-2">Symbol</div>
+                              <div className="col-span-3">Company</div>
+                              <div className="col-span-1 text-center">Score</div>
+                              <div className="col-span-2 text-center">Rating</div>
+                              <div className="col-span-2 text-right">Price</div>
+                              <div className="col-span-2 text-center">Technical</div>
+                            </div>
+                          </div>
+                          
+                          {/* Table Body */}
+                          <div className="divide-y divide-blue-900/30 max-h-[600px] overflow-y-auto">
+                            {report.allAnalyzedStocks.map((stock, idx) => (
+                              <div
+                                key={`${stock.symbol}-complete-${idx}`}
+                                className="grid grid-cols-12 gap-4 px-6 py-3 hover:bg-slate-800/30 transition-colors items-center"
+                              >
+                                {/* Symbol */}
+                                <div className="col-span-2">
+                                  <div className="font-bold text-white">{stock.symbol}</div>
+                                  <div className="text-xs text-slate-400 mt-0.5">{stock.sector}</div>
+                                </div>
+                                
+                                {/* Company Name */}
+                                <div className="col-span-3">
+                                  <div className="text-sm text-slate-200 truncate">{stock.name}</div>
+                                </div>
+                                
+                                {/* Score */}
+                                <div className="col-span-1 text-center">
+                                  <div className="text-lg font-bold text-blue-400">{stock.score}</div>
+                                </div>
+                                
+                                {/* Rating */}
+                                <div className="col-span-2 flex justify-center">
+                                  <div className="flex items-center gap-2">
+                                    {stock.recommendation === 'STRONG BUY' && (
+                                      <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
+                                    )}
+                                    {stock.recommendation === 'BUY' && (
+                                      <div className="w-2 h-2 rounded-full bg-blue-500" />
+                                    )}
+                                    {stock.recommendation === 'WATCH' && (
+                                      <div className="w-2 h-2 rounded-full bg-yellow-500" />
+                                    )}
+                                    {stock.recommendation === 'PASS' && (
+                                      <div className="w-2 h-2 rounded-full bg-slate-500" />
+                                    )}
+                                    <Badge className={`${getRecommendationColor(stock.recommendation)} text-xs`}>
+                                      {stock.recommendation}
+                                    </Badge>
+                                  </div>
+                                </div>
+                                
+                                {/* Price */}
+                                <div className="col-span-2 text-right">
+                                  <div className="text-sm text-white font-medium">${stock.price.toFixed(2)}</div>
+                                  <div className={`text-xs ${stock.changePercent > 0 ? 'text-green-400' : 'text-red-400'}`}>
+                                    {stock.changePercent > 0 ? '+' : ''}{stock.changePercent.toFixed(2)}%
+                                  </div>
+                                </div>
+                                
+                                {/* Technical Indicators */}
+                                <div className="col-span-2">
+                                  <div className="flex flex-col gap-1 text-xs">
+                                    <div className="flex justify-between">
+                                      <span className="text-slate-500">SMA:</span>
+                                      <span className="text-slate-300">{stock.smaScore}/25</span>
+                                    </div>
+                                    <div className="flex justify-between">
+                                      <span className="text-slate-500">MACD:</span>
+                                      <span className="text-slate-300">{stock.macdScore}/20</span>
+                                    </div>
+                                    <div className="flex justify-between">
+                                      <span className="text-slate-500">RSI:</span>
+                                      <span className="text-slate-300">{stock.rsiScore}/20</span>
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        </CardContent>
+                      </Card>
                     </div>
                   )}
                 </CardContent>

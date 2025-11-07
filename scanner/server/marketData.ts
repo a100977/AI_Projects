@@ -289,14 +289,24 @@ export interface NewsHeadline {
 export async function getMarketNews(): Promise<NewsHeadline[]> {
   return [
     {
-      title: 'Live Market Updates - CNBC',
+      title: 'Live Market Updates',
       url: 'https://www.cnbc.com/markets/',
       source: 'CNBC',
     },
     {
-      title: 'Market News & Analysis - MarketWatch',
+      title: 'Latest Market News',
       url: 'https://www.marketwatch.com/latest-news',
       source: 'MarketWatch',
+    },
+    {
+      title: 'Markets & Economy',
+      url: 'https://www.bloomberg.com/markets',
+      source: 'Bloomberg',
+    },
+    {
+      title: 'Stock Market News',
+      url: 'https://finance.yahoo.com/',
+      source: 'Yahoo Finance',
     },
   ];
 }

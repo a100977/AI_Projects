@@ -476,41 +476,43 @@ export const appRouter = router({
           }
           const portfolioAnalyses = Array.from(latestAnalysesByStock.values());
 
-          const recommendations = portfolioAnalyses
-            .filter(a => a.fields['Total Score'] >= 70)
-            .map(a => {
-              const stock = portfolioStocks.find(s => s.id === a.fields.Stock![0]);
-              return {
-                symbol: stock?.fields['Ticker Symbol'] || '',
-                name: stock?.fields['Stock Name'] || '',
-                score: a.fields['Total Score'] || 0,
-                price: a.fields['Current Price'] || 0,
-                change: (a.fields['Price Change Percent'] || 0) * a.fields['Current Price']! || 0,
-                changePercent: (a.fields['Price Change Percent'] || 0) * 100,
-                rsi: a.fields['RSI Value'] || 0,
-                volumeRatio: a.fields['Volume Ratio'] || 0,
-                recommendation: a.fields.Recommendation || 'HOLD',
-                sector: stock?.fields.Sector || 'Technology',
-                // Indicator scores for buy rationale
-                smaScore: a.fields['SMA Score'] || 0,
-                macdScore: a.fields['MACD Score'] || 0,
-                rsiScore: a.fields['RSI Score'] || 0,
-                volumeScore: a.fields['Volume Score'] || 0,
-                highScore: a.fields['High Score'] || 0,
-                // Technical indicator values
-                sma10: a.fields['SMA 10'] || 0,
-                sma50: a.fields['SMA 50'] || 0,
-                sma200: a.fields['SMA 200'] || 0,
-                macdLine: a.fields['MACD Line'] || 0,
-                signalLine: a.fields['Signal Line'] || 0,
-                high52w: a.fields['52 Week High'] || 0,
-                alerts: a.fields.Alerts || '',
-              };
-            })
-            .sort((a, b) => b.score - a.score);
+          // Map all analyzed stocks
+          const allAnalyzedStocks = portfolioAnalyses.map(a => {
+            const stock = portfolioStocks.find(s => s.id === a.fields.Stock![0]);
+            return {
+              symbol: stock?.fields['Ticker Symbol'] || '',
+              name: stock?.fields['Stock Name'] || '',
+              score: a.fields['Total Score'] || 0,
+              price: a.fields['Current Price'] || 0,
+              change: (a.fields['Price Change Percent'] || 0) * a.fields['Current Price']! || 0,
+              changePercent: (a.fields['Price Change Percent'] || 0) * 100,
+              rsi: a.fields['RSI Value'] || 0,
+              volumeRatio: a.fields['Volume Ratio'] || 0,
+              recommendation: a.fields.Recommendation || 'PASS',
+              sector: stock?.fields.Sector || 'Technology',
+              // Indicator scores for buy rationale
+              smaScore: a.fields['SMA Score'] || 0,
+              macdScore: a.fields['MACD Score'] || 0,
+              rsiScore: a.fields['RSI Score'] || 0,
+              volumeScore: a.fields['Volume Score'] || 0,
+              highScore: a.fields['High Score'] || 0,
+              // Technical indicator values
+              sma10: a.fields['SMA 10'] || 0,
+              sma50: a.fields['SMA 50'] || 0,
+              sma200: a.fields['SMA 200'] || 0,
+              macdLine: a.fields['MACD Line'] || 0,
+              signalLine: a.fields['Signal Line'] || 0,
+              high52w: a.fields['52 Week High'] || 0,
+              alerts: a.fields.Alerts || '',
+            };
+          }).sort((a, b) => b.score - a.score);
 
+          // Filter only buy recommendations (score >= 70)
+          const recommendations = allAnalyzedStocks.filter(a => a.score >= 70);
+
+          // Sector analysis from ALL analyzed stocks (not just buy recommendations)
           const sectorMap = new Map<string, { count: number; scores: number[] }>();
-          recommendations.forEach(r => {
+          allAnalyzedStocks.forEach(r => {
             if (!sectorMap.has(r.sector)) {
               sectorMap.set(r.sector, { count: 0, scores: [] });
             }
@@ -519,12 +521,14 @@ export const appRouter = router({
             sector.scores.push(r.score);
           });
 
-          const sectorAnalysis = Array.from(sectorMap.entries()).map(([sector, data]) => ({
-            sector,
-            count: data.count,
-            avgScore: data.scores.reduce((a, b) => a + b, 0) / data.scores.length,
-            topScore: Math.max(...data.scores),
-          }));
+          const sectorAnalysis = Array.from(sectorMap.entries())
+            .map(([sector, data]) => ({
+              sector,
+              count: data.count,
+              avgScore: data.scores.reduce((a, b) => a + b, 0) / data.scores.length,
+              topScore: Math.max(...data.scores),
+            }))
+            .sort((a, b) => b.avgScore - a.avgScore);
 
           // Calculate execution metadata from analyses
           const latestAnalysis = portfolioAnalyses.length > 0 
@@ -547,9 +551,11 @@ export const appRouter = router({
             portfolioName: portfolio.fields.Name,
             totalStocks: stockIds.length,
             analyzedStocks: portfolioAnalyses.length,
-            strongBuyCount: recommendations.filter(r => r.score >= 90).length,
-            buyCount: recommendations.filter(r => r.score >= 70 && r.score < 90).length,
+            strongBuyCount: recommendations.filter(r => r.score >= 80).length,
+            buyCount: recommendations.filter(r => r.score >= 70 && r.score < 80).length,
+            watchCount: recommendations.filter(r => r.score >= 60 && r.score < 70).length,
             recommendations,
+            allAnalyzedStocks,
             sectorAnalysis,
             executionTime: latestAnalysis?.fields['Created At'] || latestAnalysis?.fields['Analysis Date'],
             executionStatus: executionStatus as 'success' | 'partial' | 'failed',

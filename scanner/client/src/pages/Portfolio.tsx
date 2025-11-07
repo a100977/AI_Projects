@@ -606,9 +606,23 @@ export default function Portfolio() {
                               </td>
                               <td className="py-3 px-2 text-center">
                                 {analysis?.recommendation ? (
-                                  <Badge className={`${getRecommendationColor(analysis.recommendation)} text-xs`}>
-                                    {analysis.recommendation}
-                                  </Badge>
+                                  <div className="flex items-center justify-center gap-2">
+                                    {analysis.recommendation === 'STRONG BUY' && (
+                                      <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
+                                    )}
+                                    {analysis.recommendation === 'BUY' && (
+                                      <div className="w-2 h-2 rounded-full bg-blue-500" />
+                                    )}
+                                    {analysis.recommendation === 'WATCH' && (
+                                      <div className="w-2 h-2 rounded-full bg-yellow-500" />
+                                    )}
+                                    {analysis.recommendation === 'PASS' && (
+                                      <div className="w-2 h-2 rounded-full bg-slate-500" />
+                                    )}
+                                    <Badge className={`${getRecommendationColor(analysis.recommendation)} text-xs`}>
+                                      {analysis.recommendation}
+                                    </Badge>
+                                  </div>
                                 ) : (
                                   <span className="text-slate-500 text-xs">No analysis</span>
                                 )}
