@@ -1,0 +1,22 @@
+Airtable's SEARCH() and FIND() functions can return 0 when used with linked record fields for several reasons, primarily due to how Airtable handles data types in formulas: 
+1. Linked Records are Arrays: 
+Airtable treats linked record fields, and often lookup fields based on them, as arrays, even if only one record is linked. SEARCH() and FIND() are designed to work with strings. When you apply them directly to an array, Airtable attempts to coerce the array into a string, which may not always result in the expected string representation, leading to a mismatch and a return of 0. 
+2. Searching by Primary Field Value: 
+When using FIND() or SEARCH() on a linked record field, you are effectively searching within the primary field value of the linked record(s) as they are represented in the linking table. If the text you are searching for is not present in the primary field of any linked record, the function will return 0. [1]  
+3. Incorrect Formula Structure: 
+Ensure the FIND() or SEARCH() formula is structured correctly. The first parameter should be the string you are looking for, and the second parameter should be the string (or coerced array) you are searching within. 
+Workarounds: 
+
+• Convert to String with ARRAYJOIN(): To explicitly convert the array of linked record values into a single string for FIND() or SEARCH() to operate on, use ARRAYJOIN(). This concatenates the array elements into a string, typically separated by commas. 
+
+    FIND("Search Term", ARRAYJOIN({Linked Record Field}))
+
+• Create a Rollup Field: If you need to search within specific fields of the linked records (not just their primary field), create a rollup field in the local table. Configure the rollup to pull the desired field(s) from the linked records and use an aggregation formula like ARRAYJOIN(values) to combine them into a string. Then, you can use FIND() or SEARCH() on this rollup field. 
+• Use a Formula Field for String Conversion: Create a separate formula field in the local table that references the linked record field and explicitly converts it to a string, for example, using "" & {Linked Record Field} or CONCATENATE({Linked Record Field}). Then, use FIND() or SEARCH() on this new formula field. 
+
+By understanding that linked records are treated as arrays and ensuring proper string conversion or targeting the correct fields, you can effectively use SEARCH() and FIND() with linked records in Airtable. 
+
+AI responses may include mistakes.
+
+[1] https://stackoverflow.com/questions/65508331/airtable-api-filter-to-return-all-records-with-a-specific-entry-in-a-linked-enti
+

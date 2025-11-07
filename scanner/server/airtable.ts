@@ -178,15 +178,29 @@ export async function updateUser(recordId: string, updates: Partial<AirtableUser
  */
 export async function getUserPortfolios(userRecordId: string): Promise<AirtablePortfolio[]> {
   try {
-    // AirTable's filterByFormula doesn't work reliably with linked record fields
-    // So we fetch all portfolios and filter in code
+    /**
+     * SECURITY NOTE: AirTable's filterByFormula doesn't work with linked record fields via API
+     * (SEARCH, FIND, ARRAYJOIN all fail to match linked records)
+     * 
+     * We fetch all portfolios and filter server-side as a workaround.
+     * 
+     * This is SECURE because:
+     * 1. This function is ONLY called from protectedProcedure endpoints
+     * 2. The userRecordId comes from authenticated session (ctx.user), not client input
+     * 3. Filtering happens entirely server-side before returning to client
+     * 4. Client never receives other users' data
+     * 
+     * Alternative solutions (require AirTable schema changes):
+     * - Add a text field for user ID (duplicates data but enables formula filtering)
+     * - Create a rollup field that converts linked User to searchable text
+     */
     const records = await base(TABLES.PORTFOLIOS)
       .select({
         sort: [{ field: 'Date Added', direction: 'desc' }],
       })
       .all();
 
-    // Filter portfolios that have this user in the User field
+    // Server-side filter: Only return portfolios that belong to this user
     const userPortfolios = records.filter(record => {
       const userField = record.fields.User as string[] | undefined;
       return userField && userField.includes(userRecordId);
