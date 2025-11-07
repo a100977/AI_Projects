@@ -73,6 +73,8 @@ Preferred communication style: Simple, everyday language.
 1. **Users**: Full Name, Email Address, Google ID, Subscription Tier, Profile Photo, Date Joined, Portfolios (linked)
 2. **Portfolios**: Name, User (linked), Stock (linked), Date Added, Notes
 3. **Stocks**: Ticker Symbol, Stock Name, Exchange, Current Price, Logo, Sector, Market Cap
+
+**Important AirTable Quirk**: AirTable's `filterByFormula` does not work reliably with linked record fields via the API. The `SEARCH()`, `FIND()`, and similar formulas fail to match records even when the linked IDs are present. Solution: Fetch all records and filter in application code using JavaScript's array methods (`filter`, `includes`, etc.).
 4. **Stock Analysis**: 22 fields storing technical indicators and scores
 
 **Authentication Database**: PostgreSQL via Drizzle ORM

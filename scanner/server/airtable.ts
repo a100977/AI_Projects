@@ -178,14 +178,21 @@ export async function updateUser(recordId: string, updates: Partial<AirtableUser
  */
 export async function getUserPortfolios(userRecordId: string): Promise<AirtablePortfolio[]> {
   try {
+    // AirTable's filterByFormula doesn't work reliably with linked record fields
+    // So we fetch all portfolios and filter in code
     const records = await base(TABLES.PORTFOLIOS)
       .select({
-        filterByFormula: `SEARCH('${userRecordId}', ARRAYJOIN({User}))`,
         sort: [{ field: 'Date Added', direction: 'desc' }],
       })
       .all();
 
-    return records.map(record => ({
+    // Filter portfolios that have this user in the User field
+    const userPortfolios = records.filter(record => {
+      const userField = record.fields.User as string[] | undefined;
+      return userField && userField.includes(userRecordId);
+    });
+
+    return userPortfolios.map(record => ({
       id: record.id,
       fields: record.fields as AirtablePortfolio['fields'],
     }));

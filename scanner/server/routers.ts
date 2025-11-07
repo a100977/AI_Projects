@@ -19,11 +19,9 @@ export const appRouter = router({
     // Sync user with AirTable on login
     syncUser: protectedProcedure.mutation(async ({ ctx }) => {
       const { user } = ctx;
-      console.log('[syncUser] Starting sync for user:', user.email);
       
       // Check if user exists in AirTable
       let airtableUser = await airtable.findUserByEmail(user.email!);
-      console.log('[syncUser] Found existing AirTable user:', airtableUser ? airtableUser.id : 'none');
       
       if (!airtableUser) {
         // Create new user in AirTable
@@ -31,17 +29,14 @@ export const appRouter = router({
           ? `${user.firstName} ${user.lastName}` 
           : user.firstName || user.lastName || '';
         
-        console.log('[syncUser] Creating new AirTable user:', fullName, user.email);
         airtableUser = await airtable.createUser({
           'Full Name': fullName,
           'Email Address': user.email!,
           'Google ID': user.id,
           'Subscription Tier': 'Free',
         });
-        console.log('[syncUser] Created AirTable user with ID:', airtableUser.id);
       } else if (!airtableUser.fields['Google ID']) {
         // Update existing user with Replit ID
-        console.log('[syncUser] Updating existing user with Google ID');
         airtableUser = await airtable.updateUser(airtableUser.id!, {
           'Google ID': user.id,
         });
@@ -56,19 +51,14 @@ export const appRouter = router({
 
   portfolios: router({
     list: protectedProcedure.query(async ({ ctx }) => {
-      console.log('[portfolios.list] Fetching portfolios for:', ctx.user.email);
-      
       // Get user from AirTable
       const user = await airtable.findUserByEmail(ctx.user.email!);
-      console.log('[portfolios.list] AirTable user found:', user ? user.id : 'NOT FOUND');
       
       if (!user) {
-        console.log('[portfolios.list] User not found in AirTable, returning empty array');
         return [];
       }
       
       const portfolios = await airtable.getUserPortfolios(user.id!);
-      console.log('[portfolios.list] Found', portfolios.length, 'portfolios');
       
       // Get stock details for each portfolio
       const result = await Promise.all(portfolios.map(async (p) => {
