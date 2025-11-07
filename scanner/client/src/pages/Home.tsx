@@ -2,13 +2,14 @@ import { useAuth } from "@/_core/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { APP_TITLE, getLoginUrl } from "@/const";
-import { TrendingUp, BarChart3, Target, Zap, Shield, Crown } from "lucide-react";
+import { TrendingUp, BarChart3, Target, Zap, Shield, Crown, Loader2 } from "lucide-react";
 import { useLocation } from "wouter";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 
 export default function Home() {
   const { user, loading, isAuthenticated } = useAuth();
   const [, setLocation] = useLocation();
+  const [isLoggingIn, setIsLoggingIn] = useState(false);
   const loginUrl = getLoginUrl();
 
   useEffect(() => {
@@ -16,6 +17,14 @@ export default function Home() {
       setLocation("/dashboard");
     }
   }, [isAuthenticated, loading, setLocation]);
+
+  const handleLogin = () => {
+    setIsLoggingIn(true);
+    // Small delay to show the loading state before redirect
+    setTimeout(() => {
+      window.location.href = loginUrl;
+    }, 100);
+  };
 
   if (loading) {
     return (
@@ -37,10 +46,18 @@ export default function Home() {
             </h1>
           </div>
           <Button
-            onClick={() => window.location.href = loginUrl}
+            onClick={handleLogin}
+            disabled={isLoggingIn}
             className="bg-blue-600 hover:bg-blue-700"
           >
-            Sign In
+            {isLoggingIn ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Redirecting...
+              </>
+            ) : (
+              'Sign In'
+            )}
           </Button>
         </div>
       </header>
@@ -56,10 +73,18 @@ export default function Home() {
           </p>
           <Button
             size="lg"
-            onClick={() => window.location.href = loginUrl}
+            onClick={handleLogin}
+            disabled={isLoggingIn}
             className="bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 text-lg px-8 py-6"
           >
-            Get Started Free
+            {isLoggingIn ? (
+              <>
+                <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                Redirecting to Login...
+              </>
+            ) : (
+              'Get Started Free'
+            )}
           </Button>
         </div>
       </section>
@@ -198,10 +223,18 @@ export default function Home() {
           </p>
           <Button
             size="lg"
-            onClick={() => window.location.href = loginUrl}
+            onClick={handleLogin}
+            disabled={isLoggingIn}
             className="bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 text-lg px-8 py-6"
           >
-            Start Free Trial
+            {isLoggingIn ? (
+              <>
+                <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                Redirecting to Login...
+              </>
+            ) : (
+              'Start Free Trial'
+            )}
           </Button>
         </div>
       </section>
