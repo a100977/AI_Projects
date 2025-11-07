@@ -27,6 +27,20 @@ interface StockRecommendation {
   volumeRatio: number;
   recommendation: string;
   sector: string;
+  // Indicator scores
+  smaScore: number;
+  macdScore: number;
+  rsiScore: number;
+  volumeScore: number;
+  highScore: number;
+  // Technical values
+  sma10: number;
+  sma50: number;
+  sma200: number;
+  macdLine: number;
+  signalLine: number;
+  high52w: number;
+  alerts: string;
 }
 
 interface DailyReport {
@@ -91,6 +105,37 @@ export default function Reports() {
       default:
         return 'bg-slate-600 text-white';
     }
+  };
+
+  const generateBuyRationale = (stock: StockRecommendation): string => {
+    const strengths: string[] = [];
+    
+    // Check which indicators are strongest
+    if (stock.smaScore >= 15) {
+      strengths.push('bullish SMA crossover');
+    }
+    if (stock.macdScore >= 12) {
+      strengths.push('positive MACD momentum');
+    }
+    if (stock.rsiScore >= 12 && stock.rsi >= 50 && stock.rsi < 70) {
+      strengths.push('optimal RSI momentum');
+    }
+    if (stock.volumeScore >= 10) {
+      strengths.push(`${stock.volumeRatio.toFixed(1)}x volume surge`);
+    }
+    if (stock.highScore >= 10 && stock.high52w > 0) {
+      const pctFrom52w = ((stock.price / stock.high52w) * 100).toFixed(0);
+      strengths.push(`${pctFrom52w}% of 52-week high`);
+    }
+    
+    // If no specific strengths, use generic strong signals
+    if (strengths.length === 0) {
+      strengths.push('strong technical signals');
+    }
+    
+    // Create a natural language sentence
+    const mainStrength = strengths.slice(0, 2).join(' and ');
+    return `Showing ${mainStrength} with score ${stock.score}/100`;
   };
 
   if (loading) {
@@ -255,51 +300,92 @@ export default function Reports() {
                   {/* Top Opportunities */}
                   {report.recommendations && report.recommendations.length > 0 && (
                     <div>
-                      <h3 className="text-lg font-semibold text-white mb-3 flex items-center">
+                      <h3 className="text-lg font-semibold text-white mb-4 flex items-center">
                         <TrendingUp className="w-5 h-5 mr-2 text-green-400" />
                         Top Opportunities (Score ≥ 70)
                       </h3>
-                      <div className="space-y-2">
-                        {report.recommendations.map((stock, idx) => (
-                          <div
-                            key={stock.symbol}
-                            className="flex items-center justify-between p-3 bg-slate-800/30 rounded-lg hover:bg-slate-800/50 transition-colors"
-                          >
-                            <div className="flex items-center gap-4">
-                              <div className="text-sm font-mono text-slate-400">#{idx + 1}</div>
-                              <div>
-                                <div className="font-semibold text-white">{stock.symbol}</div>
-                                <div className="text-xs text-slate-400">{stock.name}</div>
-                              </div>
-                            </div>
-                            <div className="flex items-center gap-4">
-                              <div className="text-right">
-                                <div className="text-sm font-semibold text-white">${stock.price.toFixed(2)}</div>
-                                <div className={`text-xs flex items-center gap-1 ${
-                                  stock.changePercent > 0 ? 'text-green-400' : 'text-red-400'
-                                }`}>
-                                  {stock.changePercent > 0 ? (
-                                    <TrendingUp className="w-3 h-3" />
-                                  ) : (
-                                    <TrendingDown className="w-3 h-3" />
-                                  )}
-                                  {Math.abs(stock.changePercent).toFixed(2)}%
-                                </div>
-                              </div>
-                              <div className="text-center">
-                                <div className="text-xl font-bold text-blue-400">{stock.score}</div>
-                                <div className="text-xs text-slate-400">Score</div>
-                              </div>
-                              <Badge className={getRecommendationColor(stock.recommendation)}>
-                                {stock.recommendation}
-                              </Badge>
-                              <Button size="sm" variant="ghost">
-                                <BarChart3 className="w-4 h-4" />
-                              </Button>
+                      
+                      {/* Table Card */}
+                      <Card className="bg-slate-800/40 border-blue-900/40 overflow-hidden">
+                        <CardContent className="p-0">
+                          {/* Table Header */}
+                          <div className="bg-slate-800/60 border-b border-blue-900/50">
+                            <div className="grid grid-cols-12 gap-4 px-6 py-3 text-xs font-semibold text-slate-300 uppercase tracking-wider">
+                              <div className="col-span-1">#</div>
+                              <div className="col-span-2">Symbol</div>
+                              <div className="col-span-2">Company</div>
+                              <div className="col-span-1 text-center">Score</div>
+                              <div className="col-span-1 text-center">Rating</div>
+                              <div className="col-span-5">Buy Rationale</div>
                             </div>
                           </div>
-                        ))}
-                      </div>
+                          
+                          {/* Table Body */}
+                          <div className="divide-y divide-blue-900/30">
+                            {report.recommendations.map((stock, idx) => (
+                              <div
+                                key={stock.symbol}
+                                className="grid grid-cols-12 gap-4 px-6 py-4 hover:bg-slate-800/30 transition-colors items-center"
+                              >
+                                {/* Rank */}
+                                <div className="col-span-1">
+                                  <div className="w-8 h-8 rounded-full bg-blue-900/40 flex items-center justify-center">
+                                    <span className="text-sm font-bold text-blue-300">#{idx + 1}</span>
+                                  </div>
+                                </div>
+                                
+                                {/* Symbol */}
+                                <div className="col-span-2">
+                                  <div className="font-bold text-white text-lg">{stock.symbol}</div>
+                                  <div className={`text-xs flex items-center gap-1 mt-1 ${
+                                    stock.changePercent > 0 ? 'text-green-400' : 'text-red-400'
+                                  }`}>
+                                    {stock.changePercent > 0 ? (
+                                      <TrendingUp className="w-3 h-3" />
+                                    ) : (
+                                      <TrendingDown className="w-3 h-3" />
+                                    )}
+                                    ${stock.price.toFixed(2)} ({stock.changePercent > 0 ? '+' : ''}{stock.changePercent.toFixed(2)}%)
+                                  </div>
+                                </div>
+                                
+                                {/* Company Name */}
+                                <div className="col-span-2">
+                                  <div className="text-sm text-slate-200">{stock.name}</div>
+                                  <div className="text-xs text-slate-400 mt-0.5">{stock.sector}</div>
+                                </div>
+                                
+                                {/* Score */}
+                                <div className="col-span-1 text-center">
+                                  <div className="inline-flex flex-col items-center justify-center w-16 h-16 rounded-lg bg-gradient-to-br from-blue-500/20 to-purple-500/20 border border-blue-400/30">
+                                    <div className="text-2xl font-bold text-blue-400">{stock.score}</div>
+                                    <div className="text-xs text-slate-400">/ 100</div>
+                                  </div>
+                                </div>
+                                
+                                {/* Rating Badge */}
+                                <div className="col-span-1 flex justify-center">
+                                  <Badge className={`${getRecommendationColor(stock.recommendation)} px-3 py-1 text-xs font-semibold`}>
+                                    {stock.recommendation}
+                                  </Badge>
+                                </div>
+                                
+                                {/* Buy Rationale */}
+                                <div className="col-span-5">
+                                  <div className="flex items-start gap-2">
+                                    <div className="mt-0.5 text-green-400">
+                                      <TrendingUp className="w-4 h-4" />
+                                    </div>
+                                    <div className="text-sm text-slate-300 leading-relaxed">
+                                      {generateBuyRationale(stock)}
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        </CardContent>
+                      </Card>
                     </div>
                   )}
 

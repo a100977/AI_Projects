@@ -477,6 +477,20 @@ export const appRouter = router({
                 volumeRatio: a.fields['Volume Ratio'] || 0,
                 recommendation: a.fields.Recommendation || 'HOLD',
                 sector: stock?.fields.Sector || 'Technology',
+                // Indicator scores for buy rationale
+                smaScore: a.fields['SMA Score'] || 0,
+                macdScore: a.fields['MACD Score'] || 0,
+                rsiScore: a.fields['RSI Score'] || 0,
+                volumeScore: a.fields['Volume Score'] || 0,
+                highScore: a.fields['High Score'] || 0,
+                // Technical indicator values
+                sma10: a.fields['SMA 10'] || 0,
+                sma50: a.fields['SMA 50'] || 0,
+                sma200: a.fields['SMA 200'] || 0,
+                macdLine: a.fields['MACD Line'] || 0,
+                signalLine: a.fields['Signal Line'] || 0,
+                high52w: a.fields['52 Week High'] || 0,
+                alerts: a.fields.Alerts || '',
               };
             })
             .sort((a, b) => b.score - a.score);

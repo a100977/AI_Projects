@@ -296,9 +296,9 @@ export function generateAlerts(indicators: TechnicalIndicators): string[] {
  * Get recommendation based on total score
  */
 export function getRecommendation(totalScore: number): 'STRONG BUY' | 'BUY' | 'WATCH' | 'PASS' {
-  if (totalScore >= 70) return 'STRONG BUY';
-  if (totalScore >= 50) return 'BUY';
-  if (totalScore >= 30) return 'WATCH';
+  if (totalScore >= 90) return 'STRONG BUY';
+  if (totalScore >= 70) return 'BUY';
+  if (totalScore >= 50) return 'WATCH';
   return 'PASS';
 }
 
