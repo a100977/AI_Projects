@@ -95,7 +95,7 @@ export default function Dashboard() {
       <div className="container mx-auto px-4 py-8">
         {/* Welcome Section */}
         <div className="mb-8">
-          <h2 className="text-3xl font-bold mb-2">Welcome back, {user?.name?.split(' ')[0]}!</h2>
+          <h2 className="text-3xl font-bold mb-2">Welcome back, {user?.firstName || 'there'}!</h2>
           <p className="text-slate-400">Manage your portfolios and discover bullish breakout opportunities.</p>
         </div>
 
