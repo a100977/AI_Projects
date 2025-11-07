@@ -44,3 +44,8 @@ externalPort = 3000
 [[ports]]
 localPort = 45069
 externalPort = 3002
+
+[deployment]
+deploymentTarget = "autoscale"
+run = ["pnpm", "start"]
+build = ["pnpm", "install", "--frozen-lockfile"]
