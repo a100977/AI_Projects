@@ -1,0 +1,15 @@
+An unexpected error occurred.
+Error: Objects are not valid as a React child (found: object with keys {state, value, isStale}). If you meant to render a collection of children, use an array instead.
+    at throwOnInvalidObjectTypeImpl (https://a9e150eb-496a-49c7-96b1-f801b70a9428-00-26hhzmvnvlbzy.worf.replit.dev/@fs/home/runner/workspace/scanner/node_modules/.vite/deps/react-dom_client.js?v=fb0623db:4598:15)
+    at throwOnInvalidObjectType (https://a9e150eb-496a-49c7-96b1-f801b70a9428-00-26hhzmvnvlbzy.worf.replit.dev/@fs/home/runner/workspace/scanner/node_modules/.vite/deps/react-dom_client.js?v=fb0623db:4606:13)
+    at reconcileChildFibersImpl (https://a9e150eb-496a-49c7-96b1-f801b70a9428-00-26hhzmvnvlbzy.worf.replit.dev/@fs/home/runner/workspace/scanner/node_modules/.vite/deps/react-dom_client.js?v=fb0623db:5217:13)
+    at https://a9e150eb-496a-49c7-96b1-f801b70a9428-00-26hhzmvnvlbzy.worf.replit.dev/@fs/home/runner/workspace/scanner/node_modules/.vite/deps/react-dom_client.js?v=fb0623db:5237:35
+    at reconcileChildren (https://a9e150eb-496a-49c7-96b1-f801b70a9428-00-26hhzmvnvlbzy.worf.replit.dev/@fs/home/runner/workspace/scanner/node_modules/.vite/deps/react-dom_client.js?v=fb0623db:7182:53)
+    at beginWork (https://a9e150eb-496a-49c7-96b1-f801b70a9428-00-26hhzmvnvlbzy.worf.replit.dev/@fs/home/runner/workspace/scanner/node_modules/.vite/deps/react-dom_client.js?v=fb0623db:8701:104)
+    at runWithFiberInDEV (https://a9e150eb-496a-49c7-96b1-f801b70a9428-00-26hhzmvnvlbzy.worf.replit.dev/@fs/home/runner/workspace/scanner/node_modules/.vite/deps/react-dom_client.js?v=fb0623db:997:72)
+    at performUnitOfWork (https://a9e150eb-496a-49c7-96b1-f801b70a9428-00-26hhzmvnvlbzy.worf.replit.dev/@fs/home/runner/workspace/scanner/node_modules/.vite/deps/react-dom_client.js?v=fb0623db:12561:98)
+    at workLoopSync (https://a9e150eb-496a-49c7-96b1-f801b70a9428-00-26hhzmvnvlbzy.worf.replit.dev/@fs/home/runner/workspace/scanner/node_modules/.vite/deps/react-dom_client.js?v=fb0623db:12424:43)
+    at renderRootSync (https://a9e150eb-496a-49c7-96b1-f801b70a9428-00-26hhzmvnvlbzy.worf.replit.dev/@fs/home/runner/workspace/scanner/node_modules/.vite/deps/react-dom_client.js?v=fb0623db:12408:13)
+Reload Page
+Preview mode
+This page is not live and cannot be shared directly. Please publish to get a public link.

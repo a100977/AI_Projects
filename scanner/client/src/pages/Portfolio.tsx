@@ -395,7 +395,7 @@ export default function Portfolio() {
       </div>
 
       {/* Portfolio AI Insights */}
-      {(portfolio.notesSummary || portfolio.stockSentiment) && (
+      {portfolio && (portfolio.notesSummary || portfolio.stockSentiment) && (
         <div className="container mx-auto px-4 pt-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {/* Notes Summary AI */}
