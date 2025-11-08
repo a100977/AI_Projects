@@ -319,6 +319,42 @@ export default function Portfolio() {
                   </DialogFooter>
                 </DialogContent>
               </Dialog>
+
+              {/* Success Dialog */}
+              <Dialog open={isSuccessDialogOpen} onOpenChange={setIsSuccessDialogOpen}>
+                <DialogContent className="bg-slate-900 border-green-500/50 max-w-md">
+                  <DialogHeader>
+                    <DialogTitle className="text-2xl text-white flex items-center gap-3">
+                      <div className="w-12 h-12 rounded-full bg-green-500/20 flex items-center justify-center">
+                        <Play className="w-6 h-6 text-green-500" />
+                      </div>
+                      Screener Completed Successfully!
+                    </DialogTitle>
+                    <DialogDescription className="text-slate-300 text-base mt-4">
+                      Your portfolio has been analyzed using 5 technical indicators. All stocks have been scored and recommendations are now available.
+                    </DialogDescription>
+                  </DialogHeader>
+                  <div className="bg-slate-800/50 rounded-lg p-4 mt-4">
+                    <div className="flex items-center gap-3 text-sm text-slate-300">
+                      <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
+                      <span>Analysis complete for {portfolio.stocks?.length || 0} stocks</span>
+                    </div>
+                    <div className="flex items-center gap-3 text-sm text-slate-300 mt-2">
+                      <div className="w-2 h-2 rounded-full bg-blue-500"></div>
+                      <span>Recommendations updated with new thresholds</span>
+                    </div>
+                  </div>
+                  <DialogFooter className="mt-6">
+                    <Button 
+                      onClick={() => setIsSuccessDialogOpen(false)}
+                      className="w-full bg-green-600 hover:bg-green-700 text-white font-semibold"
+                    >
+                      View Results
+                    </Button>
+                  </DialogFooter>
+                </DialogContent>
+              </Dialog>
+
               <Button
                 size="sm"
                 onClick={handleRunScreener}
