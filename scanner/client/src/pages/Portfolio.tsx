@@ -22,6 +22,7 @@ export default function Portfolio() {
   const portfolioId = params?.id || "";
 
   const [isAddStockDialogOpen, setIsAddStockDialogOpen] = useState(false);
+  const [isSuccessDialogOpen, setIsSuccessDialogOpen] = useState(false);
   const [stockSymbol, setStockSymbol] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedStockId, setSelectedStockId] = useState<string | null>(null);
@@ -150,8 +151,8 @@ export default function Portfolio() {
   const handleRunScreener = async () => {
     try {
       await runScreenerMutation.mutateAsync({ portfolioId });
-      toast.success("Screener completed successfully!");
       refetchResults();
+      setIsSuccessDialogOpen(true);
     } catch (error: any) {
       toast.error(error.message || "Failed to run screener");
     }
