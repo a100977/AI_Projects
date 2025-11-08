@@ -243,7 +243,7 @@ export default function Portfolio() {
                 <h2 className="text-2xl font-bold">{portfolio.name}</h2>
                 <div className="flex items-center gap-4 mt-1">
                   <p className="text-sm text-slate-400">{portfolio.stocks?.length || 0} stocks</p>
-                  {portfolio.portfolioValue && (
+                  {portfolio.portfolioValue && typeof portfolio.portfolioValue === 'number' && (
                     <>
                       <span className="text-slate-600">•</span>
                       <p className="text-sm text-green-400 font-semibold">
@@ -251,7 +251,7 @@ export default function Portfolio() {
                       </p>
                     </>
                   )}
-                  {portfolio.daysHeld !== undefined && (
+                  {portfolio.daysHeld !== undefined && typeof portfolio.daysHeld === 'number' && (
                     <>
                       <span className="text-slate-600">•</span>
                       <p className="text-sm text-slate-400">{portfolio.daysHeld} days held</p>
@@ -399,7 +399,7 @@ export default function Portfolio() {
         <div className="container mx-auto px-4 pt-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {/* Notes Summary AI */}
-            {portfolio.notesSummary && (
+            {portfolio.notesSummary && typeof portfolio.notesSummary === 'string' && (
               <Card className="bg-gradient-to-br from-indigo-900/30 to-slate-900/50 border-indigo-500/30">
                 <CardHeader className="pb-3">
                   <CardTitle className="text-sm flex items-center gap-2">
@@ -416,7 +416,7 @@ export default function Portfolio() {
             )}
 
             {/* Stock Sentiment AI */}
-            {portfolio.stockSentiment && (
+            {portfolio.stockSentiment && typeof portfolio.stockSentiment === 'string' && (
               <Card className="bg-gradient-to-br from-emerald-900/30 to-slate-900/50 border-emerald-500/30">
                 <CardHeader className="pb-3">
                   <CardTitle className="text-sm flex items-center gap-2">
@@ -915,7 +915,7 @@ export default function Portfolio() {
                 )}
 
                 {/* AI-Generated Stock Summary */}
-                {selectedStock.aiSummary && (
+                {selectedStock.aiSummary && typeof selectedStock.aiSummary === 'string' && (
                   <Card className="bg-gradient-to-br from-purple-900/30 to-slate-900/50 border-purple-500/30">
                     <CardHeader className="pb-3">
                       <CardTitle className="text-sm flex items-center gap-2">
@@ -932,7 +932,7 @@ export default function Portfolio() {
                 )}
 
                 {/* AI-Generated Investment Sentiment */}
-                {selectedStock.aiSentiment && (
+                {selectedStock.aiSentiment && typeof selectedStock.aiSentiment === 'string' && (
                   <Card className="bg-gradient-to-br from-cyan-900/30 to-slate-900/50 border-cyan-500/30">
                     <CardHeader className="pb-3">
                       <CardTitle className="text-sm flex items-center gap-2">
