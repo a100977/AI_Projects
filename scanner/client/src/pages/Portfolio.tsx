@@ -163,11 +163,11 @@ export default function Portfolio() {
 
   const getRecommendationColor = (rec: string) => {
     switch (rec) {
-      case 'STRONG BUY': return 'bg-green-500 shadow-lg shadow-green-500/50 font-bold';
-      case 'BUY': return 'bg-orange-600';
-      case 'WATCH': return 'bg-yellow-600';
-      case 'PASS': return 'bg-slate-600';
-      default: return 'bg-slate-600';
+      case 'STRONG BUY': return '!bg-green-500 shadow-lg shadow-green-500/50 font-bold';
+      case 'BUY': return '!bg-orange-600';
+      case 'WATCH': return '!bg-yellow-600';
+      case 'PASS': return '!bg-slate-600';
+      default: return '!bg-slate-600';
     }
   };
 

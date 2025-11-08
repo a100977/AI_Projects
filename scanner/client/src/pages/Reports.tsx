@@ -108,13 +108,13 @@ export default function Reports() {
   const getRecommendationColor = (recommendation: string) => {
     switch (recommendation) {
       case 'STRONG BUY':
-        return 'bg-green-500 text-white shadow-lg shadow-green-500/50 font-bold';
+        return '!bg-green-500 text-white shadow-lg shadow-green-500/50 font-bold';
       case 'BUY':
-        return 'bg-orange-600 text-white';
+        return '!bg-orange-600 text-white';
       case 'WATCH':
-        return 'bg-yellow-600 text-white';
+        return '!bg-yellow-600 text-white';
       default:
-        return 'bg-slate-600 text-white';
+        return '!bg-slate-600 text-white';
     }
   };
 
