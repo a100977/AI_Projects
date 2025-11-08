@@ -1,0 +1,62 @@
+Table Name,Primary Field,Fields,Relations,Suggested AI Fields,Notes
+Portfolios,Name (Single line text),"• Name - Single line text (Primary)
+• User - Linked record (Users table)
+• Stock - Linked record (Stocks table)
+• Date Added - Date
+• Notes - Long text
+• User Full Name - Single line text (Lookup)
+• Stock Ticker Symbol - Single line text (Lookup)
+• Stock Name - Single line text (Lookup)
+• Current Price - Number (Lookup)
+• Market Cap - Number (Lookup)
+• Days Held - Number (Formula)
+• Portfolio Value - Number (Formula)
+• Notes Summary (AI) - AI text (Auto generation)
+• Stock Sentiment (AI) - AI text (Auto generation)","• Links to Users table (User field)
+• Links to Stocks table (Stock field)","• Notes Summary (AI) - Automatically summarizes portfolio notes
+• Stock Sentiment (AI) - Analyzes sentiment for stocks in portfolio",Contains 7 records. Tracks individual stock positions within user portfolios with calculated metrics like days held and portfolio value.
+Stocks,Stock Name (Single line text),"• Stock Name - Single line text (Primary)
+• Ticker Symbol - Single line text
+• Exchange - Single select (NYSE, NASDAQ, AMEX, Other)
+• Current Price - Number (Currency format)
+• Logo - Attachment
+• Sector - Single select (Technology, Healthcare, Finance, Consumer Goods, Utilities, Energy, Industrials, Other)
+• Market Cap - Number (Currency format)
+• Number of Portfolios Tracking - Count
+• Portfolios - Linked record (Portfolios table)
+• Average Purchase Price - Number (Rollup)
+• Last Portfolio Added Date - Date (Rollup)
+• Stock Summary (AI) - AI text (On-demand generation)
+• Investment Sentiment (AI) - AI text (On-demand generation)
+• Stock Analysis - Linked record (Stock Analysis table)","• Links to Portfolios table (Portfolios field)
+• Links to Stock Analysis table (Stock Analysis field)","• Stock Summary (AI) - Generates company summaries on demand
+• Investment Sentiment (AI) - Provides investment sentiment analysis on demand",Contains 69 records. Central stock database with comprehensive company information and performance tracking.
+Users,Full Name (Single line text),"• Full Name - Single line text (Primary)
+• Email Address - Single line text
+• Profile Photo - Attachment
+• Date Joined - Date
+• Portfolios - Linked record (Portfolios table)
+• Google ID - Single line text
+• Subscription Tier - Single select (Free, Pro, Premium)",• Links to Portfolios table (Portfolios field),None currently configured,Contains 8 records. Manages user accounts with subscription tiers and portfolio relationships.
+Stock Analysis,Stock + Analysis Date (Single line text),"• Stock + Analysis Date - Single line text (Primary)
+• Stock - Linked record (Stocks table)
+• Analysis Date - Date
+• Total Score - Number (Integer)
+• SMA Score - Number (Integer)
+• MACD Score - Number (Integer)
+• RSI Score - Number (Integer)
+• Volume Score - Number (Integer)
+• High Score - Number (Integer)
+• Current Price - Number (Currency)
+• Price Change Percent - Number (Percentage)
+• Recommendation - Single select (STRONG BUY, BUY, WATCH, PASS)
+• Alerts - Long text
+• SMA 10 - Number (Decimal)
+• SMA 50 - Number (Decimal)
+• SMA 200 - Number (Decimal)
+• RSI Value - Number (Decimal)
+• MACD Line - Number (Decimal)
+• Signal Line - Number (Decimal)
+• Volume Ratio - Number (Decimal)
+• 52 Week High - Number (Currency)
+• Created At - Date (Formula)",• Links to Stocks table (Stock field),None currently configured,Contains 201 records. Stores detailed technical analysis data with scoring systems and trading recommendations for stocks.

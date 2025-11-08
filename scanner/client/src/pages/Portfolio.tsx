@@ -378,6 +378,47 @@ export default function Portfolio() {
         </div>
       </div>
 
+      {/* Portfolio AI Insights */}
+      {(portfolio.notesSummary || portfolio.stockSentiment) && (
+        <div className="container mx-auto px-4 pt-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {/* Notes Summary AI */}
+            {portfolio.notesSummary && (
+              <Card className="bg-gradient-to-br from-indigo-900/30 to-slate-900/50 border-indigo-500/30">
+                <CardHeader className="pb-3">
+                  <CardTitle className="text-sm flex items-center gap-2">
+                    <div className="w-2 h-2 rounded-full bg-indigo-400 animate-pulse" />
+                    AI Notes Summary
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-sm text-slate-300 leading-relaxed">
+                    {portfolio.notesSummary}
+                  </p>
+                </CardContent>
+              </Card>
+            )}
+
+            {/* Stock Sentiment AI */}
+            {portfolio.stockSentiment && (
+              <Card className="bg-gradient-to-br from-emerald-900/30 to-slate-900/50 border-emerald-500/30">
+                <CardHeader className="pb-3">
+                  <CardTitle className="text-sm flex items-center gap-2">
+                    <div className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                    AI Stock Sentiment
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-sm text-slate-300 leading-relaxed">
+                    {portfolio.stockSentiment}
+                  </p>
+                </CardContent>
+              </Card>
+            )}
+          </div>
+        </div>
+      )}
+
       {/* 3-Column Layout */}
       <div className="container mx-auto px-4 py-4">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 h-auto lg:h-[calc(100vh-120px)]">
@@ -834,6 +875,40 @@ export default function Portfolio() {
                           </div>
                         ))}
                       </div>
+                    </CardContent>
+                  </Card>
+                )}
+
+                {/* AI-Generated Stock Summary */}
+                {selectedStock.aiSummary && (
+                  <Card className="bg-gradient-to-br from-purple-900/30 to-slate-900/50 border-purple-500/30">
+                    <CardHeader className="pb-3">
+                      <CardTitle className="text-sm flex items-center gap-2">
+                        <div className="w-2 h-2 rounded-full bg-purple-400 animate-pulse" />
+                        AI Stock Summary
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <p className="text-sm text-slate-300 leading-relaxed">
+                        {selectedStock.aiSummary}
+                      </p>
+                    </CardContent>
+                  </Card>
+                )}
+
+                {/* AI-Generated Investment Sentiment */}
+                {selectedStock.aiSentiment && (
+                  <Card className="bg-gradient-to-br from-cyan-900/30 to-slate-900/50 border-cyan-500/30">
+                    <CardHeader className="pb-3">
+                      <CardTitle className="text-sm flex items-center gap-2">
+                        <div className="w-2 h-2 rounded-full bg-cyan-400 animate-pulse" />
+                        AI Investment Sentiment
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <p className="text-sm text-slate-300 leading-relaxed">
+                        {selectedStock.aiSentiment}
+                      </p>
                     </CardContent>
                   </Card>
                 )}

@@ -52,6 +52,15 @@ export interface AirtablePortfolio {
     'Stock'?: string[]; // Linked to Stocks
     'Date Added'?: string;
     'Notes'?: string;
+    'User Full Name'?: string; // Lookup
+    'Stock Ticker Symbol'?: string; // Lookup
+    'Stock Name'?: string; // Lookup
+    'Current Price'?: number; // Lookup
+    'Market Cap'?: number; // Lookup
+    'Days Held'?: number; // Formula
+    'Portfolio Value'?: number; // Formula
+    'Notes Summary (AI)'?: string; // AI text
+    'Stock Sentiment (AI)'?: string; // AI text
   };
 }
 
@@ -60,11 +69,18 @@ export interface AirtableStock {
   fields: {
     'Ticker Symbol': string;
     'Stock Name': string;
-    'Exchange'?: string;
+    'Exchange'?: 'NYSE' | 'NASDAQ' | 'AMEX' | 'Other' | string;
     'Current Price'?: number;
-    'Sector'?: string;
+    'Sector'?: 'Technology' | 'Healthcare' | 'Finance' | 'Consumer Goods' | 'Utilities' | 'Energy' | 'Industrials' | 'Other' | string;
     'Market Cap'?: number;
-    'Logo'?: any[];
+    'Logo'?: any[]; // Attachment
+    'Number of Portfolios Tracking'?: number; // Count
+    'Portfolios'?: string[]; // Linked records
+    'Average Purchase Price'?: number; // Rollup
+    'Last Portfolio Added Date'?: string; // Rollup
+    'Stock Summary (AI)'?: string; // AI text (on-demand)
+    'Investment Sentiment (AI)'?: string; // AI text (on-demand)
+    'Stock Analysis'?: string[]; // Linked records
   };
 }
 
