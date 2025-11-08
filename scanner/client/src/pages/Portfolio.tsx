@@ -241,7 +241,23 @@ export default function Portfolio() {
               </Button>
               <div>
                 <h2 className="text-2xl font-bold">{portfolio.name}</h2>
-                <p className="text-sm text-slate-400">{portfolio.stocks?.length || 0} stocks</p>
+                <div className="flex items-center gap-4 mt-1">
+                  <p className="text-sm text-slate-400">{portfolio.stocks?.length || 0} stocks</p>
+                  {portfolio.portfolioValue && (
+                    <>
+                      <span className="text-slate-600">•</span>
+                      <p className="text-sm text-green-400 font-semibold">
+                        ${portfolio.portfolioValue.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                      </p>
+                    </>
+                  )}
+                  {portfolio.daysHeld !== undefined && (
+                    <>
+                      <span className="text-slate-600">•</span>
+                      <p className="text-sm text-slate-400">{portfolio.daysHeld} days held</p>
+                    </>
+                  )}
+                </div>
               </div>
             </div>
             <div className="flex gap-2">
@@ -748,9 +764,28 @@ export default function Portfolio() {
                 <Card className="bg-slate-900/50 border-blue-900/50">
                   <CardHeader className="pb-3">
                     <div className="flex items-start justify-between">
-                      <div>
-                        <CardTitle className="text-xl">{selectedStock.symbol}</CardTitle>
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2">
+                          <CardTitle className="text-xl">{selectedStock.symbol}</CardTitle>
+                          {selectedStock.exchange && (
+                            <Badge variant="outline" className="text-xs text-slate-400 border-slate-600">
+                              {selectedStock.exchange}
+                            </Badge>
+                          )}
+                        </div>
                         <CardDescription className="text-sm mt-1">{selectedStock.name}</CardDescription>
+                        {selectedStock.sector && (
+                          <div className="flex items-center gap-1 mt-2">
+                            <Badge variant="secondary" className="text-xs bg-blue-900/30 text-blue-300 border-blue-700/50">
+                              {selectedStock.sector}
+                            </Badge>
+                            {selectedStock.marketCap && (
+                              <span className="text-xs text-slate-500">
+                                • ${(selectedStock.marketCap / 1e9).toFixed(1)}B
+                              </span>
+                            )}
+                          </div>
+                        )}
                       </div>
                       <Badge variant={null} className={`${getRecommendationColor(selectedAnalysis.recommendation || '')} text-white border-0`}>
                         {selectedAnalysis.recommendation}
