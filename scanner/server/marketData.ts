@@ -54,19 +54,43 @@ export async function fetchStockData(
         interval,
       },
       timeout: 10000,
+      validateStatus: (status) => status < 500,
     });
 
-    if (response.data.chart.error) {
-      throw new Error(`Yahoo Finance API error: ${response.data.chart.error.description}`);
+    if (response.status >= 400) {
+      const contentType = response.headers['content-type'] || '';
+      if (contentType.includes('text/html')) {
+        console.error(`[MarketData] Yahoo Finance returned HTML (status ${response.status}) for ${symbol}`);
+        throw new Error(`Unable to fetch stock data for ${symbol}. The market data service may be temporarily unavailable. Please try again later.`);
+      }
+      throw new Error(`Yahoo Finance API returned status ${response.status} for ${symbol}`);
     }
 
-    const result = response.data.chart.result[0];
+    if (!response.data || typeof response.data !== 'object') {
+      console.error(`[MarketData] Invalid response format for ${symbol}:`, response.data);
+      throw new Error(`Invalid response from market data service for ${symbol}`);
+    }
+
+    if (!response.data.chart) {
+      console.error(`[MarketData] Missing chart data for ${symbol}`);
+      throw new Error(`No chart data available for ${symbol}. Please check the stock symbol is correct.`);
+    }
+
+    if (response.data.chart.error) {
+      throw new Error(`Yahoo Finance API error: ${response.data.chart.error.description || 'Unknown error'}`);
+    }
+
+    const result = response.data.chart.result?.[0];
     if (!result) {
-      throw new Error(`No data found for symbol: ${symbol}`);
+      throw new Error(`No data found for symbol: ${symbol}. Please verify the stock symbol is correct.`);
     }
 
     const timestamps = result.timestamp;
-    const quotes = result.indicators.quote[0];
+    const quotes = result.indicators?.quote?.[0];
+
+    if (!quotes) {
+      throw new Error(`No price data available for ${symbol}`);
+    }
 
     // Convert timestamps to dates
     const dates = timestamps.map(ts => new Date(ts * 1000).toISOString().split('T')[0]);
@@ -87,8 +111,16 @@ export async function fetchStockData(
     };
   } catch (error) {
     if (axios.isAxiosError(error)) {
-      console.error(`[MarketData] Error fetching ${symbol}:`, error.message);
-      throw new Error(`Failed to fetch data for ${symbol}: ${error.message}`);
+      if (error.code === 'ECONNABORTED' || error.code === 'ETIMEDOUT') {
+        console.error(`[MarketData] Timeout fetching ${symbol}`);
+        throw new Error(`Request timeout while fetching ${symbol}. Please try again.`);
+      }
+      if (error.response) {
+        console.error(`[MarketData] HTTP ${error.response.status} for ${symbol}:`, error.message);
+      } else {
+        console.error(`[MarketData] Network error fetching ${symbol}:`, error.message);
+      }
+      throw new Error(`Failed to fetch stock data for ${symbol}. Please check your internet connection and try again.`);
     }
     throw error;
   }
