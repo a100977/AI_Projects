@@ -205,6 +205,24 @@ export async function updateUser(recordId: string, updates: Partial<AirtableUser
 /**
  * Portfolio operations
  */
+export async function getAllPortfolios(): Promise<AirtablePortfolio[]> {
+  try {
+    const records = await base(TABLES.PORTFOLIOS)
+      .select({
+        sort: [{ field: 'Date Added', direction: 'desc' }],
+      })
+      .all();
+
+    return records.map(record => ({
+      id: record.id,
+      fields: record.fields as AirtablePortfolio['fields'],
+    }));
+  } catch (error) {
+    console.error('[AirTable] Error getting all portfolios:', error);
+    throw error;
+  }
+}
+
 export async function getUserPortfolios(userRecordId: string): Promise<AirtablePortfolio[]> {
   try {
     /**
@@ -324,7 +342,7 @@ export async function createStock(stock: Partial<AirtableStock['fields']>): Prom
   }
 }
 
-export async function getStocks(): Promise<AirtableStock[]> {
+export async function getAllStocks(): Promise<AirtableStock[]> {
   try {
     const records = await base(TABLES.STOCKS).select().all();
     return records.map(record => ({
@@ -335,6 +353,11 @@ export async function getStocks(): Promise<AirtableStock[]> {
     console.error('[AirTable] Error getting all stocks:', error);
     throw error;
   }
+}
+
+// Alias for backwards compatibility
+export async function getStocks(): Promise<AirtableStock[]> {
+  return getAllStocks();
 }
 
 export async function getStocksByIds(stockIds: string[]): Promise<AirtableStock[]> {
