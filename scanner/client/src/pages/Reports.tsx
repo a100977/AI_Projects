@@ -45,6 +45,14 @@ interface StockRecommendation {
   signalLine: number;
   high52w: number;
   alerts: string;
+  // Trading levels
+  atr?: number;
+  entryPrice?: number;
+  stopLoss?: number;
+  target1?: number;
+  target2?: number;
+  target3?: number;
+  riskReward?: number;
 }
 
 interface DailyReport {
@@ -407,13 +415,16 @@ export default function Reports() {
                           <CardContent className="p-0">
                             {/* Table Header */}
                             <div className="bg-slate-800/60 border-b border-blue-900/50">
-                              <div className="grid grid-cols-12 gap-4 px-6 py-3 text-xs font-semibold text-slate-300 uppercase tracking-wider">
+                              <div className="grid grid-cols-12 gap-3 px-6 py-3 text-xs font-semibold text-slate-300 uppercase tracking-wider">
                                 <div className="col-span-1">#</div>
-                                <div className="col-span-2">Symbol</div>
+                                <div className="col-span-1">Symbol</div>
                                 <div className="col-span-2">Company</div>
                                 <div className="col-span-1 text-center">Score</div>
                                 <div className="col-span-1 text-center">Rating</div>
-                                <div className="col-span-5">Buy Rationale</div>
+                                <div className="col-span-1 text-right">Entry</div>
+                                <div className="col-span-1 text-right">Stop</div>
+                                <div className="col-span-1 text-center">R:R</div>
+                                <div className="col-span-3">Buy Rationale</div>
                               </div>
                             </div>
                             
@@ -422,7 +433,7 @@ export default function Reports() {
                               {uniqueRecommendations.map((stock, idx) => (
                                 <div
                                   key={`${stock.symbol}-${idx}`}
-                                className="grid grid-cols-12 gap-4 px-6 py-4 hover:bg-slate-800/30 transition-colors items-center"
+                                className="grid grid-cols-12 gap-3 px-6 py-4 hover:bg-slate-800/30 transition-colors items-center"
                               >
                                 {/* Rank */}
                                 <div className="col-span-1">
@@ -432,9 +443,9 @@ export default function Reports() {
                                 </div>
                                 
                                 {/* Symbol */}
-                                <div className="col-span-2">
-                                  <div className="font-bold text-white text-lg">{stock.symbol}</div>
-                                  <div className={`text-xs flex items-center gap-1 mt-1 ${
+                                <div className="col-span-1">
+                                  <div className="font-bold text-white text-base">{stock.symbol}</div>
+                                  <div className={`text-xs flex items-center gap-1 mt-0.5 ${
                                     stock.changePercent > 0 ? 'text-green-400' : 'text-red-400'
                                   }`}>
                                     {stock.changePercent > 0 ? (
@@ -442,53 +453,76 @@ export default function Reports() {
                                     ) : (
                                       <TrendingDown className="w-3 h-3" />
                                     )}
-                                    ${stock.price.toFixed(2)} ({stock.changePercent > 0 ? '+' : ''}{stock.changePercent.toFixed(2)}%)
+                                    {stock.changePercent > 0 ? '+' : ''}{stock.changePercent.toFixed(1)}%
                                   </div>
                                 </div>
                                 
                                 {/* Company Name */}
                                 <div className="col-span-2">
-                                  <div className="text-sm text-slate-200">{stock.name}</div>
+                                  <div className="text-sm text-slate-200 truncate">{stock.name}</div>
                                   <div className="text-xs text-slate-400 mt-0.5">{stock.sector}</div>
                                 </div>
                                 
                                 {/* Score */}
                                 <div className="col-span-1 text-center">
-                                  <div className="inline-flex flex-col items-center justify-center w-16 h-16 rounded-lg bg-gradient-to-br from-blue-500/20 to-purple-500/20 border border-blue-400/30">
-                                    <div className="text-2xl font-bold text-blue-400">{stock.score}</div>
-                                    <div className="text-xs text-slate-400">/ 100</div>
+                                  <div className="inline-flex flex-col items-center justify-center w-14 h-14 rounded-lg bg-gradient-to-br from-blue-500/20 to-purple-500/20 border border-blue-400/30">
+                                    <div className="text-xl font-bold text-blue-400">{stock.score}</div>
+                                    <div className="text-xs text-slate-400">/100</div>
                                   </div>
                                 </div>
                                 
                                 {/* Rating Badge */}
                                 <div className="col-span-1 flex justify-center">
-                                  <div className="flex items-center justify-center gap-2">
-                                    {stock.recommendation === 'STRONG BUY' && (
-                                      <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
-                                    )}
-                                    {stock.recommendation === 'BUY' && (
-                                      <div className="w-2 h-2 rounded-full bg-blue-500" />
-                                    )}
-                                    {stock.recommendation === 'WATCH' && (
-                                      <div className="w-2 h-2 rounded-full bg-yellow-500" />
-                                    )}
-                                    {stock.recommendation === 'PASS' && (
-                                      <div className="w-2 h-2 rounded-full bg-slate-500" />
-                                    )}
-                                    <Badge variant={null} className={`${getRecommendationColor(stock.recommendation)} px-3 py-1 text-xs font-semibold border-0`}>
+                                  <div className="flex flex-col items-center gap-1">
+                                    <Badge variant={null} className={`${getRecommendationColor(stock.recommendation)} px-2 py-0.5 text-xs font-semibold border-0`}>
                                       {stock.recommendation}
                                     </Badge>
                                   </div>
                                 </div>
                                 
+                                {/* Entry Price */}
+                                <div className="col-span-1 text-right">
+                                  <div className="text-sm font-semibold text-blue-300">
+                                    {stock.entryPrice ? `$${stock.entryPrice.toFixed(2)}` : '—'}
+                                  </div>
+                                  <div className="text-xs text-slate-500">Entry</div>
+                                </div>
+                                
+                                {/* Stop Loss */}
+                                <div className="col-span-1 text-right">
+                                  <div className="text-sm font-semibold text-red-400">
+                                    {stock.stopLoss ? `$${stock.stopLoss.toFixed(2)}` : '—'}
+                                  </div>
+                                  <div className="text-xs text-slate-500">
+                                    {stock.stopLoss && stock.entryPrice 
+                                      ? `${(((stock.entryPrice - stock.stopLoss) / stock.entryPrice) * 100).toFixed(1)}%`
+                                      : 'Stop'}
+                                  </div>
+                                </div>
+                                
+                                {/* Risk/Reward */}
+                                <div className="col-span-1 text-center">
+                                  <div className={`text-sm font-bold ${
+                                    stock.riskReward && stock.riskReward >= 2 ? 'text-green-400' : 'text-yellow-400'
+                                  }`}>
+                                    {stock.riskReward ? `${stock.riskReward.toFixed(1)}` : '—'}
+                                  </div>
+                                  <div className="text-xs text-slate-500">R:R</div>
+                                </div>
+                                
                                 {/* Buy Rationale */}
-                                <div className="col-span-5">
+                                <div className="col-span-3">
                                   <div className="flex items-start gap-2">
                                     <div className="mt-0.5 text-green-400">
                                       <TrendingUp className="w-4 h-4" />
                                     </div>
                                     <div className="text-sm text-slate-300 leading-relaxed">
                                       {generateBuyRationale(stock)}
+                                      {stock.target1 && stock.target2 && stock.target3 && (
+                                        <div className="text-xs text-slate-400 mt-1">
+                                          Targets: ${stock.target1.toFixed(2)} / ${stock.target2.toFixed(2)} / ${stock.target3.toFixed(2)}
+                                        </div>
+                                      )}
                                     </div>
                                   </div>
                                 </div>

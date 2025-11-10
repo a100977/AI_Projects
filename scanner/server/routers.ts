@@ -520,6 +520,14 @@ export const appRouter = router({
               signalLine: a.fields['Signal Line'] || 0,
               high52w: a.fields['52 Week High'] || 0,
               alerts: a.fields.Alerts || '',
+              // Trading levels
+              atr: a.fields['ATR'],
+              entryPrice: a.fields['Entry Price'],
+              stopLoss: a.fields['Stop Loss'],
+              target1: a.fields['Target 1'],
+              target2: a.fields['Target 2'],
+              target3: a.fields['Target 3'],
+              riskReward: a.fields['Risk Reward Ratio'],
             };
           }).sort((a, b) => b.score - a.score);
 
