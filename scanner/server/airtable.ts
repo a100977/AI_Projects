@@ -107,6 +107,13 @@ export interface AirtableStockAnalysis {
     'Signal Line'?: number;
     'Volume Ratio'?: number;
     '52 Week High'?: number;
+    'ATR'?: number;
+    'Entry Price'?: number;
+    'Stop Loss'?: number;
+    'Target 1'?: number;
+    'Target 2'?: number;
+    'Target 3'?: number;
+    'Risk Reward Ratio'?: number;
     'Created At'?: string;
   };
 }

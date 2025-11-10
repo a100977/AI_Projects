@@ -94,6 +94,13 @@ async function generateDailyReports() {
                 'Signal Line': analysis.indicators.signalLine,
                 'Volume Ratio': analysis.indicators.volumeRatio,
                 '52 Week High': analysis.indicators.high52w,
+                'ATR': analysis.indicators.atr,
+                'Entry Price': analysis.tradingLevels.entry,
+                'Stop Loss': analysis.tradingLevels.stopLoss,
+                'Target 1': analysis.tradingLevels.target1,
+                'Target 2': analysis.tradingLevels.target2,
+                'Target 3': analysis.tradingLevels.target3,
+                'Risk Reward Ratio': analysis.tradingLevels.riskReward,
               });
 
               totalStocksAnalyzed++;

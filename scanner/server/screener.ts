@@ -30,6 +30,16 @@ export interface TechnicalIndicators {
   high52w: number;
   currentPrice: number;
   avgVolume20: number;
+  atr: number;
+}
+
+export interface TradingLevels {
+  entry: number;
+  stopLoss: number;
+  target1: number;
+  target2: number;
+  target3: number;
+  riskReward: number;
 }
 
 export interface IndicatorScores {
@@ -48,6 +58,7 @@ export interface ScreenerResult {
   recommendation: 'STRONG BUY' | 'BUY' | 'WATCH' | 'PASS';
   alerts: string[];
   priceChange: number;
+  tradingLevels: TradingLevels;
 }
 
 /**
@@ -129,6 +140,106 @@ export function calculateRSI(prices: number[], period: number = 14): number {
 }
 
 /**
+ * Calculate ATR (Average True Range) for volatility measurement
+ * Uses simplified approach based on price changes when high/low data unavailable
+ */
+export function calculateATR(prices: number[], period: number = 14): number {
+  if (prices.length < 2) return 0;
+  
+  // Calculate True Range using adjacent close prices (simplified approach)
+  const trueRanges: number[] = [];
+  for (let i = 1; i < prices.length; i++) {
+    const tr = Math.abs(prices[i] - prices[i - 1]);
+    trueRanges.push(tr);
+  }
+  
+  if (trueRanges.length < period) {
+    // Not enough data, return simple average
+    return trueRanges.reduce((sum, tr) => sum + tr, 0) / trueRanges.length;
+  }
+  
+  // Use Wilder's smoothing method
+  let atr = trueRanges.slice(0, period).reduce((sum, tr) => sum + tr, 0) / period;
+  
+  for (let i = period; i < trueRanges.length; i++) {
+    atr = ((atr * (period - 1)) + trueRanges[i]) / period;
+  }
+  
+  return atr;
+}
+
+/**
+ * Calculate trading levels (entry, stop loss, targets) based on volatility
+ */
+export function calculateTradingLevels(indicators: TechnicalIndicators): TradingLevels {
+  const { currentPrice, atr, sma10, sma50, sma200, high52w } = indicators;
+  
+  // Guard against invalid data
+  if (currentPrice <= 0 || atr <= 0) {
+    return {
+      entry: currentPrice,
+      stopLoss: currentPrice * 0.95,
+      target1: currentPrice * 1.10,
+      target2: currentPrice * 1.20,
+      target3: currentPrice * 1.30,
+      riskReward: 2.0,
+    };
+  }
+  
+  // Entry price is current market price
+  const entry = currentPrice;
+  
+  // Stop Loss: Tighter (higher) of (1.5×ATR below entry) or (2% below nearest SMA support)
+  const stopLossCandidateAtr = entry - (1.5 * atr);
+  
+  // Find nearest SMA support level BELOW current price
+  const smaSupportsAboveZero = [sma10, sma50, sma200].filter(sma => sma > 0 && sma < entry);
+  const nearestSmaSupport = smaSupportsAboveZero.length > 0 
+    ? Math.max(...smaSupportsAboveZero) // Highest SMA below price
+    : 0;
+  
+  const stopLossCandidateSma = nearestSmaSupport > 0 
+    ? nearestSmaSupport * 0.98 // 2% below SMA support
+    : 0;
+  
+  // Use TIGHTER (higher) stop loss - protects capital better
+  let stopLossRaw = Math.max(stopLossCandidateAtr, stopLossCandidateSma);
+  
+  // Apply 5% hard floor
+  const stopLossFloor = entry * 0.95;
+  let stopLoss = Math.max(stopLossRaw, stopLossFloor);
+  
+  // Ensure stop loss is below entry
+  if (stopLoss >= entry) {
+    stopLoss = entry * 0.99; // 1% buffer minimum
+  }
+  
+  // Target levels
+  const target1 = entry * 1.10;  // 10% quick profit
+  const target2 = entry * 1.20;  // 20% swing target
+  let target3 = Math.min(entry + (3 * atr), high52w > entry ? high52w : entry * 1.30); // ATR-based or 52w high
+  
+  // Ensure targets are monotonically increasing
+  if (target3 < target2) {
+    target3 = target2 * 1.05; // At least 5% above target2
+  }
+  
+  // Risk/Reward ratio
+  const risk = Math.max(entry - stopLoss, Number.EPSILON);
+  const reward = target1 - entry;
+  const riskReward = reward / risk;
+  
+  return {
+    entry: Number(entry.toFixed(2)),
+    stopLoss: Number(stopLoss.toFixed(2)),
+    target1: Number(target1.toFixed(2)),
+    target2: Number(target2.toFixed(2)),
+    target3: Number(target3.toFixed(2)),
+    riskReward: Number(riskReward.toFixed(2)),
+  };
+}
+
+/**
  * Calculate all technical indicators
  */
 export function calculateIndicators(data: StockData): TechnicalIndicators {
@@ -145,6 +256,7 @@ export function calculateIndicators(data: StockData): TechnicalIndicators {
     high52w: Math.max(...prices),
     currentPrice,
     avgVolume20: calculateSMA(volumes, 20),
+    atr: calculateATR(prices, 14),
   };
 }
 
@@ -319,6 +431,7 @@ export function analyzeStock(data: StockData): ScreenerResult {
   const totalScore = scores.sma + scores.macd + scores.rsi + scores.volume + scores.highBreakout;
   const alerts = generateAlerts(indicators);
   const recommendation = getRecommendation(totalScore);
+  const tradingLevels = calculateTradingLevels(indicators);
   
   // Calculate price change (current vs previous day)
   const priceChange = data.prices.length >= 2
@@ -333,5 +446,6 @@ export function analyzeStock(data: StockData): ScreenerResult {
     recommendation,
     alerts,
     priceChange,
+    tradingLevels,
   };
 }
