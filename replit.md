@@ -83,6 +83,18 @@ Preferred communication style: Simple, everyday language.
 - Total possible score: 100 points
 - Recommendations: STRONG BUY (70-100), BUY (50-69), WATCH (30-49), PASS (0-29)
 
+**Trading Levels System**:
+- **ATR (Average True Range)**: 14-period volatility measure using close-to-close differences (Wilder's smoothing method)
+- **Entry Price**: Current market price at analysis time
+- **Stop Loss**: Tighter (higher) of two candidates, with 5% hard floor:
+  - Candidate 1: Entry - 1.5×ATR (volatility-based stop)
+  - Candidate 2: Nearest SMA support - 2% (technical support-based stop)
+- **Target 1**: Entry + 10% (quick profit target)
+- **Target 2**: Entry + 20% (swing trade target)
+- **Target 3**: Minimum of (Entry + 3×ATR) or 52-week high, with validation to ensure T3 > T2
+- **Risk/Reward Ratio**: (Target1 - Entry) / (Entry - StopLoss), favorable if ≥ 2.0
+- **Note**: ATR uses close-to-close price differences (simplified approach), which may understate volatility on gap-heavy stocks
+
 **Subscription Tier Limits**:
 - Free: 1 portfolio, 10 stocks maximum
 - Pro: 5 portfolios, 50 stocks per portfolio
@@ -96,7 +108,9 @@ Preferred communication style: Simple, everyday language.
 3. **Stocks**: Ticker Symbol, Stock Name, Exchange, Current Price, Logo, Sector, Market Cap
 
 **Important AirTable Quirk**: AirTable's `filterByFormula` does not work reliably with linked record fields via the API. The `SEARCH()`, `FIND()`, and similar formulas fail to match records even when the linked IDs are present. Solution: Fetch all records and filter in application code using JavaScript's array methods (`filter`, `includes`, etc.).
-4. **Stock Analysis**: 22 fields storing technical indicators and scores
+4. **Stock Analysis**: 29 fields total
+   - 22 original fields: technical indicators, scores, alerts, price data
+   - 7 new trading level fields: ATR (Number), Entry Price (Currency), Stop Loss (Currency), Target 1-3 (Currency), Risk Reward Ratio (Number with 2 decimals)
 
 **Authentication Database**: PostgreSQL via Drizzle ORM
 - Schema defined in `shared/schema.ts`
