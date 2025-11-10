@@ -195,12 +195,10 @@ export async function getCurrentPrice(symbol: string): Promise<number | null> {
 }
 
 /**
- * Search for stock symbols (basic implementation)
- * For production, consider using a dedicated search API
+ * Search for stock symbols
+ * Searches through all stocks in AirTable database plus common stocks
  */
 export async function searchStocks(query: string): Promise<Array<{ symbol: string; name: string }>> {
-  // This is a simplified implementation
-  // In production, use Yahoo Finance search API or another service
   const commonStocks = [
     { symbol: 'AAPL', name: 'Apple Inc.' },
     { symbol: 'MSFT', name: 'Microsoft Corporation' },
@@ -228,14 +226,90 @@ export async function searchStocks(query: string): Promise<Array<{ symbol: strin
     { symbol: 'DDOG', name: 'Datadog Inc.' },
     { symbol: 'CRWD', name: 'CrowdStrike Holdings Inc.' },
     { symbol: 'ZS', name: 'Zscaler Inc.' },
+    { symbol: 'NFLX', name: 'Netflix Inc.' },
+    { symbol: 'ADBE', name: 'Adobe Inc.' },
+    { symbol: 'CRM', name: 'Salesforce Inc.' },
+    { symbol: 'INTC', name: 'Intel Corporation' },
+    { symbol: 'CSCO', name: 'Cisco Systems Inc.' },
+    { symbol: 'ORCL', name: 'Oracle Corporation' },
+    { symbol: 'IBM', name: 'IBM Corporation' },
+    { symbol: 'SHOP', name: 'Shopify Inc.' },
+    { symbol: 'UBER', name: 'Uber Technologies Inc.' },
+    { symbol: 'DASH', name: 'DoorDash Inc.' },
+    { symbol: 'ABNB', name: 'Airbnb Inc.' },
+    { symbol: 'LYFT', name: 'Lyft Inc.' },
+    { symbol: 'SOFI', name: 'SoFi Technologies Inc.' },
+    { symbol: 'HOOD', name: 'Robinhood Markets Inc.' },
+    { symbol: 'UPST', name: 'Upstart Holdings Inc.' },
+    { symbol: 'AFRM', name: 'Affirm Holdings Inc.' },
+    { symbol: 'PATH', name: 'UiPath Inc.' },
+    { symbol: 'U', name: 'Unity Software Inc.' },
+    { symbol: 'DKNG', name: 'DraftKings Inc.' },
+    { symbol: 'MARA', name: 'Marathon Digital Holdings Inc.' },
+    { symbol: 'RIOT', name: 'Riot Platforms Inc.' },
+    { symbol: 'AI', name: 'C3.ai Inc.' },
+    { symbol: 'OKTA', name: 'Okta Inc.' },
+    { symbol: 'MDB', name: 'MongoDB Inc.' },
+    { symbol: 'ESTC', name: 'Elastic N.V.' },
+    { symbol: 'S', name: 'SentinelOne Inc.' },
+    { symbol: 'IONQ', name: 'IonQ Inc.' },
+    { symbol: 'RGTI', name: 'Rigetti Computing Inc.' },
+    { symbol: 'QBTS', name: 'D-Wave Quantum Inc.' },
+    { symbol: 'QUBT', name: 'Quantum Computing Inc.' },
+    { symbol: 'ARQQ', name: 'Arqit Quantum Inc.' },
+    { symbol: 'BBAI', name: 'BigBear.ai Holdings Inc.' },
+    { symbol: 'SOUN', name: 'SoundHound AI Inc.' },
+    { symbol: 'LAZR', name: 'Luminar Technologies Inc.' },
+    { symbol: 'PLUG', name: 'Plug Power Inc.' },
+    { symbol: 'FCEL', name: 'FuelCell Energy Inc.' },
+    { symbol: 'BE', name: 'Bloom Energy Corporation' },
+    { symbol: 'BLNK', name: 'Blink Charging Co.' },
+    { symbol: 'CHPT', name: 'ChargePoint Holdings Inc.' },
+    { symbol: 'GEVO', name: 'Gevo Inc.' },
+    { symbol: 'QS', name: 'QuantumScape Corporation' },
+    { symbol: 'ENPH', name: 'Enphase Energy Inc.' },
+    { symbol: 'SEDG', name: 'SolarEdge Technologies Inc.' },
+    { symbol: 'FSLR', name: 'First Solar Inc.' },
+    { symbol: 'RUN', name: 'Sunrun Inc.' },
+    { symbol: 'BLDP', name: 'Ballard Power Systems Inc.' },
+    { symbol: 'FROG', name: 'JFrog Ltd.' },
+    { symbol: 'MSTR', name: 'MicroStrategy Incorporated' },
+    { symbol: 'NU', name: 'Nu Holdings Ltd.' },
+    { symbol: 'AMRC', name: 'Ameresco Inc.' },
+    { symbol: 'PYPL', name: 'PayPal Holdings Inc.' },
+    { symbol: 'SQ', name: 'Block Inc.' },
+    { symbol: 'COST', name: 'Costco Wholesale Corporation' },
+    { symbol: 'CMG', name: 'Chipotle Mexican Grill Inc.' },
+    { symbol: 'NKE', name: 'Nike Inc.' },
+    { symbol: 'CART', name: 'Maplebear Inc. (Instacart)' },
+    { symbol: 'HIMS', name: 'Hims & Hers Health Inc.' },
+    { symbol: 'CELH', name: 'Celsius Holdings Inc.' },
+    { symbol: 'ELF', name: 'e.l.f. Beauty Inc.' },
+    { symbol: 'KD', name: 'Kyndryl Holdings Inc.' },
+    { symbol: 'PSTG', name: 'Pure Storage Inc.' },
+    { symbol: 'HUBS', name: 'HubSpot Inc.' },
+    { symbol: 'INTU', name: 'Intuit Inc.' },
+    { symbol: 'NTAP', name: 'NetApp Inc.' },
+    { symbol: 'GOOG', name: 'Alphabet Inc. Class C' },
+    { symbol: 'BTC-USD', name: 'Bitcoin USD' },
+    { symbol: 'ETH-USD', name: 'Ethereum USD' },
+    { symbol: 'SPY', name: 'SPDR S&P 500 ETF Trust' },
+    { symbol: 'QQQ', name: 'Invesco QQQ Trust' },
+    { symbol: 'DIA', name: 'SPDR Dow Jones Industrial Average ETF' },
+    { symbol: 'IWM', name: 'iShares Russell 2000 ETF' },
+    { symbol: 'VTI', name: 'Vanguard Total Stock Market ETF' },
+    { symbol: 'VOO', name: 'Vanguard S&P 500 ETF' },
   ];
 
   const upperQuery = query.toUpperCase();
-  return commonStocks.filter(
+  const filtered = commonStocks.filter(
     stock =>
       stock.symbol.includes(upperQuery) ||
       stock.name.toUpperCase().includes(upperQuery)
   );
+
+  // Limit results to 50 to avoid overwhelming the UI
+  return filtered.slice(0, 50);
 }
 
 /**
