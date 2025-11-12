@@ -134,6 +134,19 @@ export async function getUsers(): Promise<AirtableUser[]> {
   }
 }
 
+export async function getUser(userRecordId: string): Promise<AirtableUser | null> {
+  try {
+    const record = await base(TABLES.USERS).find(userRecordId);
+    return {
+      id: record.id,
+      fields: record.fields as AirtableUser['fields'],
+    };
+  } catch (error) {
+    console.error('[AirTable] Error getting user:', error);
+    return null;
+  }
+}
+
 export async function findUserByEmail(email: string): Promise<AirtableUser | null> {
   try {
     const records = await base(TABLES.USERS)

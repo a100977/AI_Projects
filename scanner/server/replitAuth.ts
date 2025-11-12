@@ -9,6 +9,7 @@ import connectPg from "connect-pg-simple";
 import { users } from "@shared/schema";
 import { db } from "./db";
 import { eq } from "drizzle-orm";
+import * as airtable from "./airtable";
 
 const getOidcConfig = memoize(
   async () => {
@@ -53,22 +54,54 @@ function updateUserSession(
 }
 
 async function upsertUser(claims: any) {
+  const email = claims["email"];
+  const firstName = claims["first_name"];
+  const lastName = claims["last_name"];
+  
+  let airtableUserId: string | undefined;
+  
+  if (email) {
+    try {
+      let airtableUser = await airtable.findUserByEmail(email);
+      
+      if (!airtableUser) {
+        const fullName = firstName && lastName 
+          ? `${firstName} ${lastName}` 
+          : firstName || lastName || '';
+        
+        airtableUser = await airtable.createUser({
+          'Full Name': fullName,
+          'Email Address': email,
+          'Google ID': claims["sub"],
+          'Subscription Tier': 'Free',
+        });
+        console.log(`[Replit Auth] Created new AirTable user for ${email}`);
+      }
+      
+      airtableUserId = airtableUser.id;
+    } catch (error) {
+      console.error('[Replit Auth] Error syncing with AirTable:', error);
+    }
+  }
+  
   await db
     .insert(users)
     .values({
       id: claims["sub"],
-      email: claims["email"],
-      firstName: claims["first_name"],
-      lastName: claims["last_name"],
+      email: email,
+      firstName: firstName,
+      lastName: lastName,
       profileImageUrl: claims["profile_image_url"],
+      airtableUserId: airtableUserId,
     })
     .onConflictDoUpdate({
       target: users.id,
       set: {
-        email: claims["email"],
-        firstName: claims["first_name"],
-        lastName: claims["last_name"],
+        email: email,
+        firstName: firstName,
+        lastName: lastName,
         profileImageUrl: claims["profile_image_url"],
+        airtableUserId: airtableUserId,
         updatedAt: new Date(),
       },
     });

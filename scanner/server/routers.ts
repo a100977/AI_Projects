@@ -51,14 +51,11 @@ export const appRouter = router({
 
   portfolios: router({
     list: protectedProcedure.query(async ({ ctx }) => {
-      // Get user from AirTable
-      const user = await airtable.findUserByEmail(ctx.user.email!);
-      
-      if (!user) {
-        return [];
+      if (!ctx.user.airtableUserId) {
+        throw new Error('User not synced with AirTable. Please log out and log back in.');
       }
       
-      const portfolios = await airtable.getUserPortfolios(user.id!);
+      const portfolios = await airtable.getUserPortfolios(ctx.user.airtableUserId);
       
       // Get stock details for each portfolio
       const result = await Promise.all(portfolios.map(async (p) => {
@@ -98,13 +95,17 @@ export const appRouter = router({
         notes: z.string().optional(),
       }))
       .mutation(async ({ ctx, input }) => {
-        const user = await airtable.findUserByEmail(ctx.user.email!);
+        if (!ctx.user.airtableUserId) {
+          throw new Error('User not synced with AirTable. Please log out and log back in.');
+        }
+        
+        const user = await airtable.getUser(ctx.user.airtableUserId);
         if (!user) {
           throw new Error('User not found in AirTable. Please refresh the page.');
         }
         
         const tier = user.fields['Subscription Tier'] || 'Free';
-        const existingPortfolios = await airtable.getUserPortfolios(user.id!);
+        const existingPortfolios = await airtable.getUserPortfolios(ctx.user.airtableUserId);
         
         // Check portfolio limits
         if (tier === 'Free' && existingPortfolios.length >= 1) {
@@ -182,11 +183,15 @@ export const appRouter = router({
         }
         
         // Get portfolio and check limits
-        const user = await airtable.findUserByEmail(ctx.user.email!);
+        if (!ctx.user.airtableUserId) {
+          throw new Error('User not synced with AirTable. Please log out and log back in.');
+        }
+        
+        const user = await airtable.getUser(ctx.user.airtableUserId);
         const tier = user?.fields['Subscription Tier'] || 'Free';
         const stockLimit = tier === 'Free' ? 10 : tier === 'Pro' ? 50 : Infinity;
         
-        const portfolios = await airtable.getUserPortfolios(user!.id!);
+        const portfolios = await airtable.getUserPortfolios(ctx.user.airtableUserId);
         const portfolio = portfolios.find(p => p.id === input.portfolioId);
         if (!portfolio) {
           throw new Error('Portfolio not found');
@@ -215,8 +220,11 @@ export const appRouter = router({
         stockId: z.string(),
       }))
       .mutation(async ({ ctx, input }) => {
-        const user = await airtable.findUserByEmail(ctx.user.email!);
-        const portfolios = await airtable.getUserPortfolios(user!.id!);
+        if (!ctx.user.airtableUserId) {
+          throw new Error('User not synced with AirTable. Please log out and log back in.');
+        }
+        
+        const portfolios = await airtable.getUserPortfolios(ctx.user.airtableUserId);
         const portfolio = portfolios.find(p => p.id === input.portfolioId);
         
         if (!portfolio) {
@@ -241,8 +249,11 @@ export const appRouter = router({
         date: z.string().optional(),
       }))
       .query(async ({ ctx, input }) => {
-        const user = await airtable.findUserByEmail(ctx.user.email!);
-        const portfolios = await airtable.getUserPortfolios(user!.id!);
+        if (!ctx.user.airtableUserId) {
+          throw new Error('User not synced with AirTable. Please log out and log back in.');
+        }
+        
+        const portfolios = await airtable.getUserPortfolios(ctx.user.airtableUserId);
         const portfolio = portfolios.find(p => p.id === input.portfolioId);
         
         if (!portfolio) {
@@ -334,8 +345,11 @@ export const appRouter = router({
         portfolioId: z.string(),
       }))
       .mutation(async ({ ctx, input }) => {
-        const user = await airtable.findUserByEmail(ctx.user.email!);
-        const portfolios = await airtable.getUserPortfolios(user!.id!);
+        if (!ctx.user.airtableUserId) {
+          throw new Error('User not synced with AirTable. Please log out and log back in.');
+        }
+        
+        const portfolios = await airtable.getUserPortfolios(ctx.user.airtableUserId);
         const portfolio = portfolios.find(p => p.id === input.portfolioId);
         
         if (!portfolio) {
@@ -421,10 +435,11 @@ export const appRouter = router({
         dateFilter: z.enum(['today', 'yesterday', 'week', 'month']).default('today'),
       }))
       .query(async ({ ctx, input }) => {
-        const user = await airtable.findUserByEmail(ctx.user.email!);
-        if (!user) return [];
+        if (!ctx.user.airtableUserId) {
+          throw new Error('User not synced with AirTable. Please log out and log back in.');
+        }
 
-        const portfolios = await airtable.getUserPortfolios(user.id!);
+        const portfolios = await airtable.getUserPortfolios(ctx.user.airtableUserId);
         const reports = [];
 
         const now = new Date();
@@ -594,10 +609,11 @@ export const appRouter = router({
     generateReport: protectedProcedure
       .mutation(async ({ ctx }) => {
         const startTime = Date.now();
-        const user = await airtable.findUserByEmail(ctx.user.email!);
-        if (!user) throw new Error('User not found');
+        if (!ctx.user.airtableUserId) {
+          throw new Error('User not synced with AirTable. Please log out and log back in.');
+        }
 
-        const portfolios = await airtable.getUserPortfolios(user.id!);
+        const portfolios = await airtable.getUserPortfolios(ctx.user.airtableUserId);
         let totalStocks = 0;
         let successCount = 0;
         let errorCount = 0;
