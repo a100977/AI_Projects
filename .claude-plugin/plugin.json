@@ -1,0 +1,98 @@
+{
+  "name": "document-merge",
+  "displayName": "Document Merge",
+  "version": "0.1.0",
+  "description": "Universal document merge for Finance & Legal - merge variables from any data source into any document format",
+  "author": {
+    "name": "Amit Gupta",
+    "email": "a1009us@gmail.com",
+    "url": "https://document-merge.dev"
+  },
+  "license": "MIT",
+  "homepage": "https://github.com/a100977/AI_Projects/tree/main/claude_plugin/document-merge-plugin",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/a100977/AI_Projects.git"
+  },
+
+  "skills": [
+    {
+      "name": "detect-variables",
+      "displayName": "Detect Variables",
+      "description": "Automatically detect merge variables in a document and suggest mappings"
+    },
+    {
+      "name": "review-mapping",
+      "displayName": "Review & Edit Mappings",
+      "description": "Review detected variables, fix mappings, and preview data before processing"
+    },
+    {
+      "name": "merge-document",
+      "displayName": "Merge Document",
+      "description": "Merge variables into a document from any data source"
+    },
+    {
+      "name": "batch-merge",
+      "displayName": "Batch Merge",
+      "description": "Generate multiple documents in bulk from CSV, database, or API"
+    }
+  ],
+
+  "supportedDataSources": [
+    "airtable",
+    "postgresql",
+    "mysql",
+    "mongodb",
+    "rest_api",
+    "graphql_api",
+    "salesforce",
+    "google_sheets",
+    "csv",
+    "json",
+    "custom"
+  ],
+
+  "supportedDocumentFormats": [
+    "docx",
+    "pdf",
+    "xlsx",
+    "csv",
+    "json",
+    "txt",
+    "html",
+    "xml"
+  ],
+
+  "keywords": [
+    "document-merge",
+    "variable-mapping",
+    "finance",
+    "legal",
+    "template",
+    "airtable",
+    "database",
+    "api",
+    "batch-processing",
+    "eviction",
+    "invoice",
+    "contract"
+  ],
+
+  "capabilities": {
+    "requiresBackendServer": true,
+    "backendLanguages": ["node"],
+    "backendPort": 3000,
+    "minimumNodeVersion": "18.0.0"
+  },
+
+  "pricing": {
+    "model": "freemium",
+    "cloudApiUrl": "https://api.document-merge.dev"
+  },
+
+  "docsUrl": "https://github.com/a100977/AI_Projects/tree/main/claude_plugin/document-merge-plugin/docs",
+  "supportUrl": "https://github.com/a100977/AI_Projects/issues",
+
+  "createdAt": "2025-02-26",
+  "updatedAt": "2025-02-26"
+}

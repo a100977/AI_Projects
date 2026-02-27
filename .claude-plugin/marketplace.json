@@ -1,0 +1,59 @@
+{
+  "name": "amit-gupta-marketplace",
+  "displayName": "Amit Gupta Plugins",
+  "description": "Professional document and data processing plugins for Finance & Legal industries",
+  "version": "1.0.0",
+  "owner": {
+    "name": "Amit Gupta",
+    "email": "a1009us@gmail.com",
+    "github": "a100977"
+  },
+  "url": "https://github.com/a100977/AI_Projects",
+  "repository": {
+    "type": "github",
+    "url": "https://github.com/a100977/AI_Projects"
+  },
+
+  "plugins": [
+    {
+      "id": "document-merge",
+      "name": "document-merge",
+      "displayName": "Document Merge",
+      "version": "0.1.0",
+      "description": "Universal document merge for Finance & Legal - merge variables from any data source into any document format",
+      "source": {
+        "type": "github",
+        "repo": "a100977/AI_Projects",
+        "path": "claude_plugin/document-merge-plugin"
+      },
+      "author": {
+        "name": "Amit Gupta",
+        "email": "a1009us@gmail.com"
+      },
+      "tags": [
+        "document",
+        "merge",
+        "finance",
+        "legal",
+        "template",
+        "airtable",
+        "database",
+        "api",
+        "batch"
+      ],
+      "featured": true,
+      "downloads": 0,
+      "rating": 0,
+      "keywords": [
+        "eviction",
+        "invoice",
+        "contract",
+        "document-merge",
+        "variable-mapping"
+      ]
+    }
+  ],
+
+  "createdAt": "2025-02-26",
+  "updatedAt": "2025-02-26"
+}
